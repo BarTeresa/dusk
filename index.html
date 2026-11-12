@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f0d0b">
+<title>调酒手册</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{
+  --bg:#0f0d0b; --panel:#171410; --card:#201c16; --card2:#262118;
+  --line:#322c22; --gold:#e0b45a; --gold-dim:#a98a45; --text:#f0e9dc;
+  --muted:#a09787; --danger:#e0604a; --ok:#7fb069;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+  overscroll-behavior-y:contain; font-size:16px; overflow-x:hidden;
+}
+#app{max-width:560px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:env(safe-area-inset-bottom)}
+.view{display:none;padding:0 14px 40px}
+.view.active{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ===== top bar ===== */
+.topbar{display:flex;align-items:center;gap:6px;padding:14px 2px 10px;background:var(--bg)}
+.brand{flex:1;font-size:21px;font-weight:800;letter-spacing:2px;color:var(--gold);display:flex;align-items:center;gap:8px}
+.brand-dot{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.brand-sub{font-size:12px;font-weight:400;letter-spacing:1px;color:var(--muted)}
+.topbar .title{flex:1;font-size:17px;font-weight:600;text-align:center}
+.topbar .spacer{width:44px}
+.iconbtn{
+  width:44px;height:44px;border:none;background:transparent;color:var(--text);
+  font-size:24px;line-height:1;border-radius:12px;display:flex;align-items:center;justify-content:center;
+}
+.iconbtn:active{background:var(--card)}
+.iconbtn.back{font-size:30px;color:var(--gold)}
+.star.on{color:var(--gold)}
+
+/* ===== 吸顶搜索区 ===== */
+.search-sticky{position:sticky;top:0;z-index:6;background:var(--bg);padding:8px 0 10px;margin-top:-8px}
+.searchwrap{display:flex;gap:10px;margin-bottom:8px}
+.searchbox{flex:1;display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 12px;height:50px}
+.tagfilter{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 12px;height:40px;margin-bottom:8px}
+.tagfilter .tagicon{color:var(--gold);font-weight:700;font-size:16px;flex-shrink:0}
+.tagfilter input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:14.5px;min-width:0}
+.tagfilter input::placeholder{color:var(--muted)}
+.searchicon{font-size:18px;margin-right:8px;opacity:.7}
+.searchbox input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:16px;height:100%}
+.searchbox input::placeholder{color:var(--muted)}
+.addbtn{width:50px;height:50px;border:none;border-radius:14px;background:var(--gold);color:#1a1508;font-size:26px;font-weight:700;box-shadow:0 4px 14px rgba(224,180,90,.25)}
+.addbtn:active{transform:scale(.94)}
+
+/* ===== chips ===== */
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted);font-size:14px;white-space:nowrap}
+.chip.active{background:var(--gold);border-color:var(--gold);color:#1a1508;font-weight:600}
+.countline{font-size:12px;color:var(--muted);margin:2px 4px 8px}
+
+/* ===== list ===== */
+.list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;
+  min-height:108px;
+}
+.card:active{background:var(--card2)}
+.card .cname{flex:1;min-width:0}
+.card .cname .zh{font-size:18px;font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .cname .en{font-size:12px;color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.card .badges{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;flex-shrink:0;height:88px}
+.badge{font-size:12px;padding:5px 11px;border-radius:999px;background:var(--card2);border:1px solid var(--line);color:var(--muted);white-space:nowrap;line-height:1.2}
+.badge.orig{color:#f0c87a;border-color:#7a6228;background:#2a2316}
+.badge.meth{color:#a8cce8;border-color:#3a5a78;background:#1a2229}
+.badge.edited{color:var(--ok);border-color:#3f5a35;background:#1f2a1a}
+.favbtn{border:none;background:none;font-size:22px;color:#57503f;line-height:1;padding:0;width:28px;height:28px}
+.favbtn.on{color:var(--gold)}
+.empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:15px}
+@media (max-width:420px){
+  .badge{font-size:11px;padding:4px 9px}
+  .favbtn{width:24px;height:24px;font-size:19px}
+  .card{padding:12px 14px;min-height:102px}
+  .card .badges{height:80px}
+  .card .cname .zh{font-size:17px}
+  .searchwrap{gap:8px}
+  .searchbox{height:46px}
+  .tagfilter{height:36px}
+  .addbtn{width:46px;height:46px}
+}
+
+/* ===== detail ===== */
+.detail{padding-bottom:10px}
+.dname .zh{font-size:26px;font-weight:800}
+.dname .en{font-size:15px;color:var(--muted);margin-top:4px}
+.dmeta{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px}
+.mchip{font-size:13px;padding:5px 12px;border-radius:10px;background:var(--card);border:1px solid var(--line);color:var(--text)}
+.mchip b{color:var(--gold);font-weight:600}
+/* 标签 tag */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:13px;padding:4px 11px;border-radius:999px;background:var(--card2);border:1px solid #7a6228;color:var(--gold)}
+.tag.detailtag{background:transparent;border:1px solid #7a6228;color:var(--gold)}
+.tag .x{font-size:14px;line-height:1;cursor:pointer;color:var(--muted);padding-left:2px}
+.tag .x:active{color:var(--danger)}
+.taginput{display:flex;gap:8px;margin-top:8px}
+.taginput input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:15px;padding:10px 12px;outline:none}
+.taginput button{width:auto;padding:10px 14px;border-radius:10px;border:none;background:#7a6228;color:#1c150e;font-size:14px;cursor:pointer;white-space:nowrap}
+/* 批量计算 */
+.batchcalc{margin-top:2px}
+.batchtoggle{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:15px;cursor:pointer}
+.batchtoggle.on{color:var(--gold);border-color:#7a6228}
+.batchtoggle .arrow{color:var(--gold);font-size:13px}
+.batchwrap{margin-top:10px}
+.batchbar{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:14px;margin-bottom:10px}
+.batchbar.small{margin:6px 0 8px;font-size:13px}
+.batchbar input{width:64px;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:16px;text-align:center}
+.batchbar.small input{width:52px;padding:6px 8px;font-size:15px}
+.batchlist{display:flex;flex-direction:column;gap:6px}
+/* 每个分组（做酒用量 / 各预调）自己也是一个纵向 flex，保证组内行距与原样一致 */
+.batchgroup{display:flex;flex-direction:column;gap:6px}
+.batchlabel{font-size:13px;color:var(--gold);font-weight:600;margin:8px 0 2px;display:flex;align-items:center;gap:6px}
+.batchlabel::before{content:"";flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.batchmethod{font-size:11px;color:var(--muted);font-weight:400;border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.batchrow{display:flex;align-items:center;gap:8px;font-size:14px;padding:8px 10px;border-radius:10px;background:var(--card2)}
+.batchrow .bn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.batchrow .bo{color:var(--muted);font-size:13px;flex-shrink:0}
+.batchrow .bt{color:var(--gold);font-weight:600;flex-shrink:0;min-width:64px;text-align:right}
+.batchtotal{font-size:13px;color:var(--gold);margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--card2);text-align:center}
+.batchtotal.over{color:#ff9a9a;border:1px solid #7a3a3a;background:#2a1c1a}
+.batchtip{font-size:12px;color:var(--muted);margin-top:6px;padding:6px 10px;border-radius:10px;background:var(--card2);border:1px dashed var(--line);text-align:center}
+.batchrow .bt.fizzy{color:var(--muted);font-size:12px}
+.section{margin-top:18px}
+.section h3{font-size:13px;color:var(--gold);letter-spacing:2px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.section h3::after{content:"";flex:1;height:1px;background:var(--line)}
+.inglist{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ingrow{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
+.ingrow:last-child{border-bottom:none}
+.ingrow .n{flex:1;font-size:15.5px;line-height:1.35}
+.ingrow .a{font-size:15.5px;color:var(--gold);font-weight:600;text-align:right;white-space:nowrap}
+.note{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:14.5px;line-height:1.7;color:#d8cfbe;white-space:pre-wrap}
+.detailactions{display:flex;gap:10px;margin-top:22px}
+.detailactions button{flex:1;height:48px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:15px}
+.detailactions button.danger{color:var(--danger);border-color:#4a2c26}
+.detailactions button:active{background:var(--card2)}
+
+/* ===== edit form ===== */
+.form{padding-top:6px}
+/* 手机弹出键盘时给表单底部补足滚动空间，否则最下面的「备注」会被键盘完全挡住 */
+body.kb .form{padding-bottom:58vh}
+.field textarea,.field input{scroll-margin-bottom:28px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;letter-spacing:1px}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  color:var(--text);font-size:16px;padding:12px 14px;outline:none;font-family:inherit;
+}
+.field textarea{min-height:90px;resize:vertical;line-height:1.6}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold-dim)}
+.ingedit{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.ingedit input{background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:15px;padding:10px 12px;outline:none;flex:1;min-width:0}
+.ingedit .in{flex:1.6}
+.ingedit .ia{flex:1}
+.ingedit .rm{width:38px;height:38px;flex:0 0 38px;border:none;border-radius:10px;background:transparent;color:var(--danger);font-size:20px}
+.ingedit .rm:active{background:#3a211c}
+/* 预调 Premix 块（编辑表单） */
+.pmtip{font-size:12px;color:var(--muted);font-weight:400}
+.pmblock{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--card2)}
+.pmhead{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.pmhead .pmname{flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:15px;padding:10px 12px;outline:none;min-width:0}
+.pmhead .rm{width:38px;height:38px;flex:0 0 38px;border:none;border-radius:10px;background:transparent;color:var(--danger);font-size:20px}
+.pmmeta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.pmmeta select,.pmmeta input{background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:14px;padding:8px 10px;outline:none}
+.pmmeta input{width:64px}
+.pmnote{width:100%;margin-top:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:14px;padding:8px 10px;outline:none;resize:vertical;min-height:44px;box-sizing:border-box}
+.pmaddrow{border:none;background:none;color:var(--gold);font-size:13px;padding:6px 2px}
+.adding{width:100%;height:44px;border:1px dashed var(--line);border-radius:12px;background:transparent;color:var(--gold);font-size:14px;margin-top:2px}
+.savebtn{border:none;background:var(--gold);color:#1a1508;font-size:15px;font-weight:700;padding:0 18px;height:40px;border-radius:12px}
+.savebtn:active{transform:scale(.95)}
+
+/* ===== settings ===== */
+.setcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.setcard h3{font-size:14px;color:var(--gold);margin-bottom:10px}
+.setcard p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+.setbtn{width:100%;height:46px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-size:15px;margin-bottom:8px}
+.setbtn:last-child{margin-bottom:0}
+.setbtn.warn{color:var(--danger);border-color:#4a2c26}
+.setbtn:active{background:#2c261d}
+.codebox{width:100%;min-height:110px;background:var(--bg);border:1px dashed var(--gold-dim);border-radius:12px;color:#d8cfbe;font-size:12px;line-height:1.5;padding:10px;margin-bottom:10px;resize:vertical;font-family:ui-monospace,Consolas,monospace}
+.about{font-size:12px;color:var(--muted);text-align:center;margin-top:20px;line-height:1.8}
+/* 右侧滚动进度条（仅指示，可点击跳转） */
+.scrollbar{position:fixed;right:0;top:14px;bottom:8px;width:12px;z-index:999;opacity:.45;cursor:pointer;display:none}
+.scrollbar .thumb{position:absolute;left:3px;width:6px;border-radius:3px;background:var(--gold)}
+
+/* ===== toast / dialog ===== */
+#toast{
+  position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(20px);
+  background:#2c261d;color:var(--text);padding:12px 22px;border-radius:12px;font-size:14px;
+  border:1px solid var(--gold-dim);opacity:0;pointer-events:none;transition:.25s;z-index:99;max-width:86vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px;animation:fade .15s}
+.dlg{background:#211d17;border:1px solid var(--line);border-radius:18px;padding:22px;width:100%;max-width:340px;max-height:86vh;overflow:auto}
+.dlg h4{font-size:16px;margin-bottom:10px}
+.dlg p{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.dlg textarea{width:100%;min-height:90px;background:var(--bg);border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:14px;line-height:1.5;padding:12px;resize:vertical;margin-bottom:16px;font-family:ui-monospace,Consolas,monospace}
+.dlg .btns{display:flex;gap:10px}
+.dlg button{flex:1;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:14px}
+.dlg button.ok{background:var(--danger);border-color:var(--danger);color:#fff}
+.dlg button.primary{background:var(--gold);border-color:var(--gold);color:#1a1508}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ HOME ============ -->
+  <div id="view-home" class="view active">
+    <header class="topbar">
+      <div class="brand"><span class="brand-dot"></span>调酒手册</div>
+      <button id="btnSettings" class="iconbtn" title="设置">⚙</button>
+    </header>
+    <div class="search-sticky">
+      <div class="searchwrap">
+        <div class="searchbox">
+          <span class="searchicon">⌕</span>
+          <input id="searchInput" type="search" placeholder="搜酒名 / 拼音 / 材料" autocomplete="off">
+        </div>
+        <button id="btnAdd" class="addbtn" title="新增配方">＋</button>
+      </div>
+      <div class="tagfilter">
+        <span class="tagicon">#</span>
+        <input id="tagSearchInput" type="search" placeholder="按标签筛选，多个用空格或#隔开（如：水果 黑加仑）" autocomplete="off">
+      </div>
+      <div class="chips" id="chips">
+        <button class="chip active" data-f="all">全部</button>
+        <button class="chip" data-f="经典">经典款</button>
+        <button class="chip" data-f="原创">原创特调</button>
+        <button class="chip" data-f="fav">收藏</button>
+      </div>
+    </div>
+    <div class="countline" id="countline"></div>
+    <ul class="list" id="list"></ul>
+    <div class="empty" id="empty" hidden>没有找到匹配的酒，换个词试试，或点右上角 ＋ 新增</div>
+  </div>
+
+  <!-- ============ DETAIL ============ -->
+  <div id="view-detail" class="view">
+    <header class="topbar">
+      <button class="iconbtn back" id="btnBackDetail">‹</button>
+      <div class="title">配方</div>
+      <div class="spacer"></div>
+      <button class="iconbtn star" id="btnFav" title="收藏">☆</button>
+      <button class="iconbtn" id="btnShare" title="分享此款配方">↗</button>
+      <button class="iconbtn" id="btnEdit" title="编辑">✎</button>
+    </header>
+    <div class="detail" id="detailBody"></div>
+    <div class="detailactions">
+      <button id="btnDel" class="danger">删除</button>
+    </div>
+  </div>
+
+  <!-- ============ EDIT ============ -->
+  <div id="view-edit" class="view">
+    <header class="topbar">
+      <button class="iconbtn back" id="btnBackEdit">‹</button>
+      <div class="title" id="editTitle">新增配方</div>
+      <button class="savebtn" id="btnSave">保存</button>
+    </header>
+    <form class="form" id="editForm" autocomplete="off">
+      <div class="field"><label>中文名 *</label><input id="fZh" placeholder="如：尼格罗尼"></div>
+      <div class="field"><label>英文名 / 别名</label><input id="fEn" placeholder="如：Negroni"></div>
+      <div class="field"><label>分类</label>
+        <select id="fCat"><option value="经典">经典款</option><option value="原创">原创特调</option></select>
+      </div>
+      <div class="field"><label>手法</label>
+        <select id="fMethod">
+          <option value="">—</option><option value="shake">摇和 Shake</option><option value="stir">搅拌 Stir</option>
+          <option value="build">兑和 Build</option><option value="smash">捣碎 Smash</option>
+          <option value="rolling">滚和 Rolling</option><option value="blended">搅打 Blended</option>
+        </select>
+      </div>
+      <div class="field"><label>杯子</label><input id="fGlass" placeholder="如：古典杯"></div>
+      <div class="field"><label>装饰</label><input id="fGarnish" placeholder="如：橙皮"></div>
+      <div class="field"><label>冰块</label><input id="fIce" placeholder="如：方冰 / 无冰块"></div>
+      <div class="field"><label>标签（可选，用于搜索分类）</label>
+        <div class="tags" id="fTagList"></div>
+        <div class="taginput">
+          <input id="fTagInput" placeholder="输入标签回车添加，如：水果 / 黑加仑 / 烈">
+          <button type="button" id="btnAddTag">＋</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>配料</label>
+        <div id="ingList"></div>
+        <button type="button" class="adding" id="btnAddIng">＋ 添加配料</button>
+      </div>
+      <div class="field">
+        <label>预调 Premix <span class="pmtip">（可多个，名称可改，如：牛肝菌波本）</span></label>
+        <div id="premixList"></div>
+        <button type="button" class="adding" id="btnAddPremix">＋ 添加预调</button>
+      </div>
+      <div class="field"><label>做法 / 预调 / 备注</label>
+        <textarea id="fNote" placeholder="摇合方式、预调配比、特殊处理…"></textarea>
+      </div>
+    </form>
+  </div>
+
+  <!-- ============ SETTINGS ============ -->
+  <div id="view-settings" class="view">
+    <header class="topbar">
+      <button class="iconbtn back" id="btnBackSet">‹</button>
+      <div class="title">设置</div>
+      <div class="spacer"></div>
+    </header>
+    <div class="setcard" id="installCard" hidden>
+      <h3>装到手机桌面 📱</h3>
+      <p id="installTip">点下面按钮，把调酒手册加到手机主屏幕，像 App 一样随时打开（还能离线用）。</p>
+      <button class="setbtn" id="btnInstallApp">安装到桌面</button>
+    </div>
+    <div class="setcard">
+      <h3>配方分享</h3>
+      <p>把配方发给别人：点「生成配方码」复制整份代码，微信/QQ 发给对方；对方点「载入配方码」粘贴即可导入。码里只带<b>还没并入内置库</b>的新增和修改，已经同步过的会自动省略，所以码会更短。</p>
+      <button class="setbtn" id="btnShareCode">生成配方码（发全部改动给别人）</button>
+      <button class="setbtn" id="btnLoadCode">载入配方码（接收别人的）</button>
+    </div>
+    <div class="setcard">
+      <h3>数据备份</h3>
+      <p>导出完整备份文件，换手机或清数据前建议导出。</p>
+      <button class="setbtn" id="btnExport">导出备份文件</button>
+      <button class="setbtn" id="btnImport">从备份文件恢复</button>
+    </div>
+    <div class="setcard">
+      <h3>内置配方</h3>
+      <p>将内置配方刷新为最新默认版本（你手机上的修改记录会被清空）。你自增的酒如果<b>已经并入内置库</b>，本地副本也会一起清理，这样以后生成的配方码会短很多。</p>
+      <button class="setbtn" id="btnRestoreAll">恢复内置配方（回到最新默认版）</button>
+    </div>
+    <div class="setcard">
+      <h3>危险操作</h3>
+      <button class="setbtn warn" id="btnResetAll">清空所有数据（含新增）</button>
+    </div>
+    <div class="about">调酒手册 v1.5 · Boyan制作 · 共 <span id="aboutCount">—</span> 款配方<br><span style="opacity:.6">版本 dusk-20261113012727</span></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<input type="file" id="importFile" accept=".json,application/json" hidden>
+
+<div class="scrollbar" id="scrollbar"><div class="thumb" id="scrollbarThumb"></div></div>
+
+<script>
+/* ================= 数据 ================= */
+const DEFAULT_RECIPES = [{"id":"r001","zh":"绿针林","en":"","cat":"原创","method":"stir","glass":"","garnish":"抹茶粉","ice":"","ingredients":[{"n":"茉莉乌龙茶","a":"90ml"},{"n":"黑加仑利口酒","a":"20ml"},{"n":"伏特加","a":"20ml"},{"n":"桂花酒","a":"30ml"},{"n":"抹茶","a":"半勺"}],"premixes":[],"note":"","py":"lzl","pyf":"lvzhenlin","enlow":""},{"id":"r002","zh":"放松吧！","en":"Let's Relax！","cat":"原创","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"预调 Premix","a":"90ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"碧根果蒸馏液","a":"300ml"},{"n":"菠萝汁","a":"1000ml"},{"n":"夏威夷果","a":"100ml"},{"n":"96 度伏特加","a":"100ml"},{"n":"椰树椰汁","a":"200ml"},{"n":"比特储斯黄杏利口酒","a":"150ml"},{"n":"黄柠檬汁","a":"100ml"}],"method":"","temp":"","duration":"","note":""}],"note":"碧根果蒸馏液 制作：取国产朗姆酒 700ml、碧根果 140g，打碎后旋转蒸馏（45℃，1 小时）。\n预调配比：碧根果蒸馏液 300ml、菠萝汁 1000ml、夏威夷果 100ml、96 度伏特加 100ml、椰树椰汁 200ml、比特储斯黄杏利口酒 150ml、柠檬汁 60ml，混合均匀。","py":"fsb！","pyf":"fangsongba！","enlow":"let's relax！"},{"id":"r003","zh":"茉莉花茶马天尼","en":"","cat":"原创","method":"stir","glass":"马天尼杯","garnish":"茉莉花","ice":"无冰块","ingredients":[{"n":"茉莉花茶乳清","a":"40ml"},{"n":"Bombay 孟买蓝宝石金酒","a":"40ml"}],"premixes":[{"name":"茉莉花茶乳清","ingredients":[{"n":"汇源苹果汁","a":"300ml"},{"n":"牛奶","a":"100ml"},{"n":"茉莉花茶","a":"10g"}],"method":"centrifuge","temp":"","duration":"12小时","note":"茉莉花茶乳清 制作：取汇源苹果汁 300ml、牛奶 100ml、茉莉花茶 10g，冷泡 12 小时后用离心机过滤，取澄清乳清保存。"}],"note":"茉莉花茶乳清 制作：取汇源苹果汁 300ml、牛奶 100ml、茉莉花茶 10g，冷泡 12 小时后用离心机过滤，取澄清乳清保存。","py":"mlhcmtn","pyf":"molihuachamatianni","enlow":""},{"id":"r004","zh":"夜莺","en":"","cat":"原创","method":"shake","glass":"coupe杯","garnish":"青提","ice":"无冰块","ingredients":[{"n":"Premix","a":"80ml"},{"n":"青提","a":"4颗"},{"n":"洋甘菊纯露","a":"喷香"}],"premixes":[{"name":"Premix","ingredients":[{"n":"长相思葡萄酒","a":"750ml"},{"n":"添加利金酒","a":"500ml"},{"n":"诺迪斯金酒","a":"100ml"},{"n":"1:1糖浆","a":"225ml"},{"n":"苹果酸溶液","a":"225ml"}],"method":"","temp":"","duration":"","note":""}],"note":"","py":"yy","pyf":"yeying","enlow":""},{"id":"r005","zh":"栀子花开","en":"","cat":"原创","method":"stir","glass":"马天尼杯","garnish":"情人草","ice":"无冰块","ingredients":[{"n":"Premix","a":"70ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"白兰地","a":"20ml"},{"n":"浓缩咖啡液","a":"20ml"},{"n":"贵妃荔枝利口酒","a":"20ml"},{"n":"栀子花糖浆","a":"7.5ml"},{"n":"牛奶","a":"30ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"1:5盐水","a":"1.5ml"}],"method":"","temp":"","duration":"","note":""}],"note":"","py":"zzhk","pyf":"zhizihuakai","enlow":""},{"id":"r006","zh":"白玉霓","en":"","cat":"原创","method":"shake","glass":"古典杯","garnish":"三色堇","ice":"摇冰","ingredients":[{"n":"西凤酒","a":"5ml"},{"n":"汾酒","a":"30ml"},{"n":"比特储斯黄杏利口酒","a":"20ml"},{"n":"莫林菠萝糖浆","a":"10ml"},{"n":"玉兰花纯露","a":"2.5ml"},{"n":"柠檬酸溶液","a":"15ml"},{"n":"1:1糖浆","a":"5ml"},{"n":"纯净水","a":"10ml"}],"premixes":[],"note":"","py":"byn","pyf":"baiyuni","enlow":""},{"id":"r007","zh":"玫瑰夫人","en":"Lady Rose","cat":"原创","method":"shake","glass":"古典杯","garnish":"饼干蓝莓果酱","ice":"方冰","ingredients":[{"n":"巍城夏日花园","a":"30ml"},{"n":"红心芭乐果汁","a":"30ml"},{"n":"黑加仑利口酒","a":"10ml"},{"n":"玫瑰花纯露","a":"2.5ml"},{"n":"1:1糖浆","a":"10ml"},{"n":"黄柠檬","a":"15ml"}],"premixes":[],"note":"","py":"mgfr","pyf":"meiguifuren","enlow":"lady rose"},{"id":"r008","zh":"花之烟","en":"","cat":"原创","method":"stir","glass":"","garnish":"辣椒丝","ice":"","ingredients":[{"n":"无花果叶朗姆","a":"30ml"},{"n":"拉弗格精选","a":"20ml"},{"n":"希纳","a":"15ml"},{"n":"PX 雪莉酒","a":"10ml"}],"premixes":[{"name":"无花果叶朗姆","ingredients":[{"n":"无花果叶","a":"15g"},{"n":"朗姆酒","a":"700ml"}],"method":"sousvide","temp":"60","duration":"2小时","note":"无花果叶朗姆 制作：取无花果叶 15g、朗姆酒 700ml，60℃ 低温慢煮 2 小时，冷却后过滤。"}],"note":"无花果叶朗姆 制作：取无花果叶 15g、朗姆酒 700ml，60℃ 低温慢煮 2 小时，冷却后过滤。","py":"hzy","pyf":"huazhiyan","enlow":""},{"id":"r009","zh":"脏芒果","en":"","cat":"原创","method":"stir","glass":"","garnish":"","ice":"","ingredients":[{"n":"Premix","a":"90ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"干雪莉酒","a":"30ml"},{"n":"干味美思","a":"30ml"},{"n":"清酒","a":"30ml"},{"n":"橄榄汁","a":"4ml"},{"n":"芒果糖浆","a":"10ml"},{"n":"牛奶","a":"15ml"}],"method":"","temp":"","duration":"","note":""}],"note":"","py":"zmg","pyf":"zangmangguo","enlow":""},{"id":"r010","zh":"假日代其利","en":"","cat":"原创","method":"","glass":"马天尼杯","garnish":"弯曲果签插一个竹盐黄皮果","ice":"无冰块","ingredients":[{"n":"蔗园三星朗姆酒","a":"30ml"},{"n":"黄皮香茅 Cordial","a":"50ml"}],"premixes":[{"name":"黄皮香茅 Cordial","ingredients":[{"n":"冷冻黄皮","a":"500g"},{"n":"皮埃尔费朗热带风情库拉索","a":"500ml"},{"n":"6% 柠檬酸溶液","a":"350ml"},{"n":"1:1 糖浆","a":"500ml"},{"n":"脱脂牛奶","a":"300ml"}],"method":"freeze","temp":"","duration":"2小时","note":"黄皮香茅 Cordial 制作：取冷冻黄皮 500g（带皮），泡温水解冻后甩干；新鲜香茅 150g，只取颈部切小段。加入皮埃尔费朗热带风情库拉索 500ml、6% 柠檬酸溶液 350ml、1:1 糖浆 500ml，用大桶搅拌机打碎；再加入脱脂牛奶 300ml，静置 2 小时后用 150 目大滤网过滤一晚上。"}],"note":"黄皮香茅 Cordial 制作：取冷冻黄皮 500g（带皮），泡温水解冻后甩干；新鲜香茅 150g，只取颈部切小段。加入皮埃尔费朗热带风情库拉索 500ml、6% 柠檬酸溶液 350ml、1:1 糖浆 500ml，用大桶搅拌机打碎；再加入脱脂牛奶 300ml，静置 2 小时后用 150 目大滤网过滤一晚上。","py":"jrdql","pyf":"jiaridaiqili","enlow":""},{"id":"r011","zh":"大地古典2.0","en":"","cat":"原创","method":"","glass":"古典杯","garnish":"醋泡口蘑","ice":"方冰","ingredients":[{"n":"罗曼湖单一谷物威士忌","a":"40ml"},{"n":"见手青利口酒","a":"30ml"},{"n":"大咖宝","a":"15ml"},{"n":"苏姿利口酒","a":"5ml"}],"premixes":[],"note":"装饰 制作：口蘑去掉根部，焯水至断生，用海天苹果醋浸泡至少一天。出品时放一颗醋泡口蘑在方冰上。","py":"ddgd2.0","pyf":"dadigudian2.0","enlow":""},{"id":"r012","zh":"回归性原理","en":"","cat":"原创","method":"stir","glass":"柯林杯","garnish":"柠檬皮","ice":"冰块","ingredients":[{"n":"Premix","a":"80ml"},{"n":"苏打水","a":"45ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"木姜子油洗金酒","a":"900ml"},{"n":"莫林文旦糖浆","a":"400ml"},{"n":"新鲜柠檬汁","a":"600ml"},{"n":"皮埃尔费朗干库拉索","a":"400ml"},{"n":"脱脂牛奶","a":"600ml"}],"method":"","temp":"","duration":"","note":""},{"name":"木姜子金酒","ingredients":[{"n":"金酒","a":"1000ml"},{"n":"木姜子油","a":"200ml"}],"method":"fatwash","temp":"","duration":"","note":""}],"note":"木姜子油洗金酒 制作：取添加利金酒 1000ml、木姜子油 200ml，混合均匀后冷冻 1 天。过滤时必须使用金属滤网（滤网也需冷冻，因木姜子油熔点极低），过滤后约得 900ml。\n预调配比：木姜子油洗金酒 900ml、莫林文旦糖浆 400ml、新鲜柠檬汁 600ml、皮埃尔费朗干库拉索 400ml、脱脂牛奶 600ml，混合奶洗后离心过滤。","py":"hgxyl","pyf":"huiguixingyuanli","enlow":""},{"id":"r013","zh":"台风俱乐部","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"冷冻至冰沙出品","ingredients":[{"n":"苦瓜金酒","a":"45ml"},{"n":"缇欧佩佩 Fino 干雪莉","a":"15ml"},{"n":"茉莉花茶苹果汁","a":"75ml"},{"n":"6% 苹果酸溶液","a":"10ml"},{"n":"莫林奇异果糖浆","a":"10ml"},{"n":"纯净水","a":"15ml"}],"premixes":[{"name":"茉莉花茶苹果汁","ingredients":[{"n":"汇源苹果汁","a":"300ml"},{"n":"脱脂牛奶","a":"100ml"},{"n":"七窨茉莉花茶","a":"10g"}],"method":"steep","temp":"","duration":"12小时","note":"茉莉花茶苹果汁 制作：取汇源苹果汁 300ml、脱脂牛奶 100ml、七窨茉莉花茶 10g，浸泡 12 小时后滤出。"},{"name":"苦瓜金酒","ingredients":[{"n":"孟买蓝宝石金酒","a":"750ml"},{"n":"去籽苦瓜块","a":"250g"},{"n":"果胶酶","a":"2g"}],"method":"sousvide","temp":"","duration":"24小时","note":"苦瓜金酒 制作：取孟买蓝宝石金酒 750ml、去籽苦瓜块 250g，用搅拌机打碎后加入果胶酶，分解 24 小时后滤出。\n茉莉花茶苹果汁 制作：取汇源苹果汁 300ml、脱脂牛奶 100ml、七窨茉莉花茶 10g，浸泡 12 小时后滤出。\n两者混合后装入塑料瓶，冷冻至冰沙状态出品。"}],"note":"苦瓜金酒 制作：取孟买蓝宝石金酒 750ml、去籽苦瓜块 250g，用搅拌机打碎后加入果胶酶，分解 24 小时后滤出。\n茉莉花茶苹果汁 制作：取汇源苹果汁 300ml、脱脂牛奶 100ml、七窨茉莉花茶 10g，浸泡 12 小时后滤出。\n两者混合后装入塑料瓶，冷冻至冰沙状态出品。","py":"tfjlb","pyf":"taifengjulebu","enlow":""},{"id":"r014","zh":"罗马假日","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"Fino 雪利酒","a":"40ml"},{"n":"好奇美国佬","a":"20ml"},{"n":"番茄利口酒","a":"20ml"},{"n":"百里香利口酒","a":"10ml"},{"n":"1:1糖浆","a":"5ml"},{"n":"柠檬酸溶液","a":"2.5ml"}],"premixes":[],"note":"","py":"lmjr","pyf":"luomajiari","enlow":""},{"id":"r015","zh":"包法利夫人","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"大伊雅美烧酒","a":"45ml"},{"n":"水仙乌龙康普茶","a":"100ml"},{"n":"莫林香茅糖浆","a":"5ml"},{"n":"柠檬酸溶液","a":"5ml"}],"premixes":[],"note":"混合后用可乐瓶打入气体，每次倒出一满茶杯的量。注意：气瓶每次最多灌 5 杯的量，其余预调必须冷藏保存。","py":"bflfr","pyf":"baofalifuren","enlow":""},{"id":"r016","zh":"“屎”在橙香破晓前","en":"","cat":"原创","method":"","glass":"克林杯","garnish":"橙皮","ice":"摇冰","ingredients":[{"n":"萨哲拉黑麦","a":"30ml"},{"n":"阿佩罗","a":"10ml"},{"n":"澄清鸭屎橙汁","a":"90ml"},{"n":"柠檬酸汁","a":"7.5ml"}],"premixes":[{"name":"澄清鸭屎橙汁","ingredients":[{"n":"橙汁","a":"一瓶"},{"n":"糖","a":"100g"},{"n":"鸭屎茶","a":"30g"},{"n":"牛奶","a":"200g"}],"method":"steep","temp":"","duration":"","note":"澄清鸭屎橙汁 制作：取橙汁一瓶（1000ml）、糖 100g、鸭屎茶 30g、牛奶 200g，混合后静置一晚，过滤取澄清液。"}],"note":"澄清鸭屎橙汁 制作：取橙汁一瓶（1000ml）、糖 100g、鸭屎茶 30g、牛奶 200g，混合后静置一晚，过滤取澄清液。","py":"“s”zcxpxq","pyf":"“shi”zaichengxiangpoxiaoqian","enlow":""},{"id":"r017","zh":"比巴卜泡泡瓜","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"金酒","a":"45ml"},{"n":"干味美思","a":"30ml"},{"n":"哈密瓜美汁汁","a":"75ml"},{"n":"佩桥苦精","a":"2dash"},{"n":"1:10 盐溶液","a":"3 drop"}],"premixes":[{"name":"蜜瓜美汁汁","ingredients":[{"n":"哈密瓜汁","a":"一瓶"},{"n":"糖","a":"200g"},{"n":"柠檬酸","a":"8g"}],"method":"","temp":"","duration":"","note":"蜜瓜美汁汁 制作：取哈密瓜汁一瓶（1250ml）、糖 200g、柠檬酸 8g，混合均匀。"}],"note":"蜜瓜奶盖 制作：取马斯卡彭芝士 200g、脱脂牛奶 100g、哈密瓜牛奶 100g、盐溶液 7.5ml，混合均匀。出品时预调 75ml 摇合，加哈密瓜芝士奶盖。\n蜜瓜美汁汁 制作：取哈密瓜汁一瓶（1250ml）、糖 200g、柠檬酸 8g，混合均匀。","py":"bbbppg","pyf":"bibabopaopaogua","enlow":""},{"id":"r018","zh":"克制美学","en":"","cat":"原创","method":"","glass":"","garnish":"诺迪斯瓶喷香","ice":"","ingredients":[{"n":"巍城夏日花园","a":"30ml"},{"n":"苏姿利口酒","a":"15ml"},{"n":"柚子利口酒","a":"10ml"},{"n":"1:1糖浆","a":"5ml"},{"n":"柠檬酸溶液","a":"5ml"}],"premixes":[],"note":"","py":"kzmx","pyf":"kezhimeixue","enlow":""},{"id":"r019","zh":"后翼弃兵","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"Grappa 果渣白兰地","a":"45ml"},{"n":"阿佩罗","a":"15ml"},{"n":"杜林干味美思","a":"20ml"},{"n":"杨梅糖浆","a":"10ml"},{"n":"柠檬酸溶液","a":"15ml"},{"n":"柠檬酸钠","a":"5 滴"}],"premixes":[],"note":"","py":"hyqb","pyf":"houyiqibing","enlow":""},{"id":"r020","zh":"春天音乐","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"梨山茶伏特加","a":"5ml"},{"n":"阿道克朗姆","a":"20ml"},{"n":"复合水果茶","a":"30ml"},{"n":"苹果利口酒","a":"5ml"},{"n":"莳萝糖浆","a":"10ml"},{"n":"苹果酸溶液","a":"10ml"}],"premixes":[{"name":"梨山茶伏特加","ingredients":[{"n":"伏特加","a":"700g"},{"n":"梨山茶","a":"30g"}],"method":"sousvide","temp":"80","duration":"5分钟","note":"梨山茶伏特加 制作：取伏特加 700g、梨山茶 30g，80℃ 低温慢煮 5 分钟，快速冷却后 40℃ 旋蒸一小时。"},{"name":"复合果茶","ingredients":[{"n":"石榴绿茶果汁","a":"400ml"},{"n":"苹果汁","a":"400ml"},{"n":"牛奶","a":"100ml"},{"n":"梨山茶","a":"15ml"}],"method":"steep","temp":"","duration":"","note":"复合果茶 制作：取石榴绿茶果汁 400ml、苹果汁 400ml、牛奶 100ml、梨山茶 15ml，混合浸泡，静置一晚。"},{"name":"莳萝糖浆","ingredients":[{"n":"莳萝草","a":"60g"},{"n":"糖浆","a":"100g"},{"n":"水","a":"100g"}],"method":"","temp":"","duration":"","note":"莳萝糖浆 制作：取莳萝草 60g、糖浆 100g、水 100g，混合加热至糖融化即可。"}],"note":"梨山茶伏特加 制作：取伏特加 700g、梨山茶 30g，80℃ 低温慢煮 5 分钟，快速冷却后 40℃ 旋蒸一小时。\n复合果茶 制作：取石榴绿茶果汁 400ml、苹果汁 400ml、牛奶 100ml、梨山茶 15ml，混合浸泡，静置一晚。\n莳萝糖浆 制作：取莳萝草 60g、糖浆 100g、水 100g，混合加热至糖融化即可。","py":"ctyy","pyf":"chuntianyinyue","enlow":""},{"id":"r021","zh":"进入下一层新的梦之前","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"巨峰紫","a":"30ml"},{"n":"纪凡茶酒","a":"10ml"},{"n":"桂花山楂汁","a":"70ml"},{"n":"柠檬酸溶液","a":"15ml"}],"premixes":[{"name":"桂花山楂汁","ingredients":[{"n":"山楂汁","a":"750ml"},{"n":"盒马桂花米酒","a":"750ml"},{"n":"桂花","a":"40g"},{"n":"牛奶","a":"200g"}],"method":"","temp":"","duration":"","note":"桂花山楂汁 制作：取山楂汁 750ml、盒马桂花米酒 750ml、桂花 40g、牛奶 200g，混合后冷藏一晚，过滤取澄清液。"}],"note":"桂花山楂汁 制作：取山楂汁 750ml、盒马桂花米酒 750ml、桂花 40g、牛奶 200g，混合后冷藏一晚，过滤取澄清液。","py":"jrxycxdmzq","pyf":"jinruxiayicengxindemengzhiqian","enlow":""},{"id":"r022","zh":"更好的曼哈顿","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"威凤凰珍藏","a":"50ml"},{"n":"潘脱蜜","a":"20ml"},{"n":"安提卡福门","a":"20ml"},{"n":"安高天娜苦精","a":"1dash"}],"premixes":[],"note":"","py":"ghdmhd","pyf":"genghaodemanhadun","enlow":""},{"id":"r023","zh":"更好的马天尼","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"Premix","a":"70ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"添加利金酒","a":"60ml"},{"n":"园林干味美思","a":"10ml"},{"n":"纯净水","a":"5ml"},{"n":"橙味苦精","a":"1dash"}],"method":"","temp":"","duration":"","note":""}],"note":"","py":"ghdmtn","pyf":"genghaodematianni","enlow":""},{"id":"r024","zh":"伪电气白兰","en":"","cat":"原创","method":"stir","glass":"柯林杯","garnish":"柠檬皮","ice":"摇冰","ingredients":[{"n":"苏姿","a":"20ml"},{"n":"圣哲曼","a":"15ml"},{"n":"白兰地","a":"20ml"},{"n":"君度","a":"10ml"},{"n":"青柠酸溶液","a":"7.5ml"},{"n":"苏打水","a":"60ml"}],"premixes":[],"note":"","py":"wdqbl","pyf":"weidianqibailan","enlow":""},{"id":"r025","zh":"绿山墙的安妮","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"金酒","a":"30ml"},{"n":"奇异果汁","a":"60ml"},{"n":"百香果糖浆","a":"15ml"},{"n":"金桔（去籽）","a":"1.5 颗"},{"n":"薄荷叶","a":"10 片"},{"n":"柠檬酸溶液","a":"2.5ml"}],"premixes":[],"note":"","py":"lsqdan","pyf":"lvshanqiangdeanni","enlow":""},{"id":"r026","zh":"农场主马天尼","en":"","cat":"原创","method":"","glass":"","garnish":"小洋葱","ice":"","ingredients":[{"n":"Premix","a":"50ml"},{"n":"杜林干味美思","a":"20ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"龙舌兰","a":"45ml"},{"n":"胡萝卜汁","a":"30ml"},{"n":"1:3 荔枝花蜜","a":"10ml"},{"n":"黄柠檬汁","a":"10ml"},{"n":"洋葱蒸馏液","a":"10ml"},{"n":"牛奶","a":"20ml"}],"method":"","temp":"","duration":"","note":""}],"note":"洋葱蒸馏液 制作：取伏特加 500ml、新鲜洋葱 100g，打碎后 30℃ 旋蒸 1 小时。","py":"nczmtn","pyf":"nongchangzhumatianni","enlow":""},{"id":"r027","zh":"菊与樱","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"混合香气金酒","a":"30ml"},{"n":"曼奇诺樱花味美思","a":"15ml"},{"n":"1:1糖浆","a":"5ml"},{"n":"汤力水","a":"75ml"}],"premixes":[{"name":"混合香气金酒","ingredients":[{"n":"罗汉果","a":"一颗"}],"method":"sousvide","temp":"60","duration":"2分钟","note":"混合香气金酒 制作：取罗汉果一颗，去皮后开水浸泡 2 分钟，捞出备用；与金酒 750ml、陈皮 30g、胎菊 5g 一同 60℃ 低温慢煮 30 分钟。"}],"note":"混合香气金酒 制作：取罗汉果一颗，去皮后开水浸泡 2 分钟，捞出备用；与金酒 750ml、陈皮 30g、胎菊 5g 一同 60℃ 低温慢煮 30 分钟。","py":"jyy","pyf":"juyuying","enlow":""},{"id":"r028","zh":"落胤与圣女","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"瑞顿房黑麦","a":"30ml"},{"n":"威凤凰珍藏波本","a":"20ml"},{"n":"布兰卡薄荷","a":"20ml"},{"n":"君度","a":"5ml"},{"n":"圣哲曼","a":"5ml"},{"n":"比特储斯黄瓜苦精","a":"2dash"}],"premixes":[],"note":"","py":"lyysn","pyf":"luoyinyushengnv","enlow":""},{"id":"r029","zh":"谷间酿","en":"","cat":"原创","method":"stir","glass":"","garnish":"新鲜苹果片","ice":"","ingredients":[{"n":"Premix","a":"75ml"},{"n":"苏格兰威士忌","a":"15ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"波本威士忌","a":"45ml"},{"n":"苹果汁","a":"30ml"},{"n":"玉米糖浆","a":"10ml"},{"n":"生姜糖浆","a":"10ml"},{"n":"柠檬酸溶液","a":"15ml"},{"n":"火龙肉桂利口酒","a":"15ml"},{"n":"牛奶","a":"40ml"}],"method":"","temp":"","duration":"","note":""}],"note":"","py":"gjn","pyf":"gujianniang","enlow":""},{"id":"r030","zh":"菊次郎没有秋天","en":"","cat":"原创","method":"shake","glass":"","garnish":"菊花","ice":"","ingredients":[{"n":"朗姆酒","a":"30ml"},{"n":"杜林干味美思","a":"20ml"},{"n":"当酒","a":"10ml"},{"n":"梨汁","a":"80ml"},{"n":"苦艾酒","a":"1.5ml"}],"premixes":[{"name":"菊花梨","ingredients":[{"n":"达川梨汁","a":"一瓶"},{"n":"胎菊","a":"10g"},{"n":"菊花","a":"5g"}],"method":"steep","temp":"","duration":"","note":"菊花梨 制作：取达川梨汁一瓶，加入胎菊 10g、菊花 5g 浸泡。"}],"note":"菊花梨 制作：取达川梨汁一瓶，加入胎菊 10g、菊花 5g 浸泡。","py":"jclmyqt","pyf":"jucilangmeiyouqiutian","enlow":""},{"id":"r031","zh":"北野武","en":"","cat":"原创","method":"shake","glass":"柯林杯","garnish":"小猫硅胶+话梅","ice":"摇冰","ingredients":[{"n":"柠檬马鞭草黑刺李金酒","a":"30ml"},{"n":"马赛内茨黑加仑利口酒","a":"10ml"},{"n":"比特储斯黄杏利口酒","a":"10ml"},{"n":"澄清葡萄汁","a":"20ml"},{"n":"青柠汁","a":"10ml"},{"n":"苏打水","a":"45ml"}],"premixes":[{"name":"柠檬马鞭草金酒","ingredients":[{"n":"柠檬马鞭草黑刺李","a":"15g"},{"n":"黑刺李金酒","a":"700ml"}],"method":"sousvide","temp":"60","duration":"1小时","note":"柠檬马鞭草金酒 制作：取柠檬马鞭草黑刺李 15g、黑刺李金酒 700ml，60℃ 低温慢煮 1 小时。"},{"name":"澄清葡萄汁","ingredients":[{"n":"达川葡萄汁","a":"1 升"},{"n":"脱脂牛奶","a":"200ml"}],"method":"","temp":"","duration":"","note":"澄清葡萄汁 制作：取达川葡萄汁 1 升、脱脂牛奶 200ml，混合后过滤。"}],"note":"柠檬马鞭草金酒 制作：取柠檬马鞭草黑刺李 15g、黑刺李金酒 700ml，60℃ 低温慢煮 1 小时。\n澄清葡萄汁 制作：取达川葡萄汁 1 升、脱脂牛奶 200ml，混合后过滤。","py":"byw","pyf":"beiyewu","enlow":""},{"id":"r032","zh":"新马孔多","en":"","cat":"原创","method":"stir","glass":"","garnish":"","ice":"","ingredients":[{"n":"黄油牛肝菌波本","a":"30ml"},{"n":"香蕉朗姆","a":"30ml"},{"n":"吉发得香蕉利口酒","a":"10ml"},{"n":"巧克力苦精","a":"2dash"}],"premixes":[{"name":"黄油牛肝菌波本","ingredients":[{"n":"牛肝菌","a":"4 个"},{"n":"水牛足迹波本威士忌","a":"700ml"}],"method":"sousvide","temp":"60","duration":"4小时","note":"牛肝菌切片用黄油煎制后低温慢煮，纱布过滤。"},{"name":"香蕉朗姆","ingredients":[{"n":"阿道克黑朗姆","a":"750ml"},{"n":"西双版纳香蕉干","a":"70g"}],"method":"sousvide","temp":"80","duration":"2小时","note":"打碎后低温慢煮，离心机过滤。"}],"note":"黄油牛肝菌波本 制作：取牛肝菌 4 个切片，用黄油煎制，低温慢煮（60℃，4 小时），纱布过滤。\n香蕉朗姆 制作：取阿道克黑朗姆 750ml、西双版纳香蕉干 70g，打碎后 80℃ 低温慢煮 2 小时，离心机过滤。","py":"xmkd","pyf":"xinmakongduo","enlow":""},{"id":"r033","zh":"郊野","en":"","cat":"原创","method":"shake","glass":"","garnish":"盐边装饰","ice":"","ingredients":[{"n":"黄椒龙舌兰","a":"30ml"},{"n":"梅斯卡尔","a":"15ml"},{"n":"君度","a":"15ml"},{"n":"龙舌兰糖浆","a":"5ml"},{"n":"菠萝汁","a":"25ml"},{"n":"青柠汁","a":"15ml"}],"premixes":[{"name":"黄椒龙舌兰","ingredients":[{"n":"黄色彩椒","a":"150g"},{"n":"奥美佳阿特兹龙舌兰","a":"700ml"}],"method":"sousvide","temp":"60","duration":"2小时","note":"黄椒龙舌兰 制作：取黄色彩椒 150g、奥美佳阿特兹龙舌兰 700ml，60℃ 低温慢煮 2 小时。"}],"note":"黄椒龙舌兰 制作：取黄色彩椒 150g、奥美佳阿特兹龙舌兰 700ml，60℃ 低温慢煮 2 小时。\n出品时放入罗勒叶和紫苏叶各一把，一起摇和。","py":"jy","pyf":"jiaoye","enlow":""},{"id":"r034","zh":"绿浮光","en":"","cat":"原创","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"斑斓叶朗姆酒","a":"45ml"},{"n":"椰子水","a":"40ml"},{"n":"1:1糖浆","a":"10ml"},{"n":"黄柠檬汁","a":"10ml"},{"n":"香茅（4cm 左右）","a":"3 段"}],"premixes":[{"name":"斑斓叶朗姆酒","ingredients":[{"n":"斑斓叶","a":"50g"},{"n":"朗姆酒","a":"700ml"}],"method":"sousvide","temp":"60","duration":"40分钟","note":"斑斓叶朗姆酒 制作：取斑斓叶 50g、朗姆酒 700ml，60℃ 低温慢煮 40 分钟。"},{"name":"芒果果茸泡沫","ingredients":[{"n":"芒果果茸","a":"100g"},{"n":"纯净水","a":"100ml"},{"n":"大豆软磷脂","a":"3g"}],"method":"","temp":"","duration":"","note":"芒果果茸泡沫 制作：取芒果果茸 100g、纯净水 100ml、大豆软磷脂 3g，混合打发。"}],"note":"斑斓叶朗姆酒 制作：取斑斓叶 50g、朗姆酒 700ml，60℃ 低温慢煮 40 分钟。\n芒果果茸泡沫 制作：取芒果果茸 100g、纯净水 100ml、大豆软磷脂 3g，混合打发。","py":"lfg","pyf":"lvfuguang","enlow":""},{"id":"r035","zh":"圣烟缭绕蟠桃疯","en":"","cat":"原创","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"水牛足迹波本威士忌","a":"20ml"},{"n":"艾雷迷雾烟熏威士忌","a":"10ml"},{"n":"圣木杏仁利口酒","a":"20ml"},{"n":"菲奈特薄荷","a":"5ml"},{"n":"蟠桃果绒","a":"20ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"三得利茉莉乌龙茶","a":"60ml"}],"premixes":[{"name":"巴西圣木杏仁利口酒","ingredients":[{"n":"巴西圣木约","a":"10g"},{"n":"杏利口酒","a":"一瓶"}],"method":"steep","temp":"","duration":"","note":"巴西圣木杏仁利口酒 制作：取巴西圣木约 10g，搭配一瓶杏（利口酒）浸泡。"},{"name":"蟠桃果茸","ingredients":[{"n":"蟠桃","a":"300g"},{"n":"砂糖","a":"100g"}],"method":"","temp":"","duration":"","note":"蟠桃果茸 制作：取蟠桃 300g、砂糖 100g，打碎后放置两天，等待微微发酵。"}],"note":"巴西圣木杏仁利口酒 制作：取巴西圣木约 10g，搭配一瓶杏（利口酒）浸泡。\n蟠桃果茸 制作：取蟠桃 300g、砂糖 100g，打碎后放置两天，等待微微发酵。","py":"sylrptf","pyf":"shengyanliaoraopantaofeng","enlow":""},{"id":"r036","zh":"盛夏光年","en":"","cat":"原创","method":"shake","glass":"","garnish":"98 康乃馨","ice":"","ingredients":[{"n":"苦瓜朗姆","a":"45ml"},{"n":"接骨木花糖浆","a":"10ml"},{"n":"玫瑰蜂蜜","a":"5ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"苏打水","a":"45ml"}],"premixes":[{"name":"苦瓜朗姆","ingredients":[{"n":"蔗园三星朗姆","a":"750ml"},{"n":"去籽苦瓜","a":"250g"},{"n":"果胶酶","a":"2g"}],"method":"sousvide","temp":"","duration":"24小时","note":"苦瓜朗姆 制作：取蔗园三星朗姆 750ml、去籽苦瓜 250g，用料理棒打碎后加入 2% 果胶酶，分解 24 小时。"}],"note":"苦瓜朗姆 制作：取蔗园三星朗姆 750ml、去籽苦瓜 250g，用料理棒打碎后加入 2% 果胶酶，分解 24 小时。","py":"sxgn","pyf":"shengxiaguangnian","enlow":""},{"id":"r037","zh":"山城椒","en":"","cat":"原创","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"花椒朗姆酒","a":"50ml"},{"n":"巴人咂酒（稠酒）","a":"30ml"},{"n":"奉节脐橙汁","a":"30ml"},{"n":"君度","a":"20ml"},{"n":"2:1 红糖糖浆","a":"15ml"},{"n":"黄柠檬汁","a":"15ml"}],"premixes":[{"name":"花椒蒸馏液","ingredients":[{"n":"四川花椒","a":"50g"},{"n":"伏特加","a":"700ml"}],"method":"spin","temp":"","duration":"12小时","note":"花椒蒸馏液 制作：取四川花椒 50g、伏特加 700ml，浸泡 12 小时后旋蒸。"},{"name":"巴人咂酒","ingredients":[{"n":"发酵高粱","a":"一瓶"},{"n":"开水","a":"500ml"}],"method":"steep","temp":"","duration":"10分钟","note":"巴人咂酒 制作：取发酵高粱一瓶倒入大桶，加入开水 500ml，浸泡 10 分钟后滤出。"}],"note":"花椒蒸馏液 制作：取四川花椒 50g、伏特加 700ml，浸泡 12 小时后旋蒸。\n花椒朗姆酒 制作：将花椒蒸馏液与蔗园三星朗姆酒按 1:4 混合。\n巴人咂酒 制作：取发酵高粱一瓶倒入大桶，加入开水 500ml，浸泡 10 分钟后滤出。","py":"scj","pyf":"shanchengjiao","enlow":""},{"id":"r038","zh":"温柔玛丽","en":"","cat":"原创","method":"stir","glass":"","garnish":"","ice":"","ingredients":[{"n":"预调","a":"75ml"},{"n":"杜林标","a":"5ml"},{"n":"Maraschino","a":"2.5ml"},{"n":"黄柠檬汁","a":"5ml"},{"n":"伏特加","a":"10ml"}],"premixes":[],"note":"预调配比：屈姑番茄罐头 400g、西柚汁 240ml、伏特加 280ml、杜林标 80ml、Maraschino 60ml、蔓越莓糖浆 40ml、辣椒仔 20dash、李派林喼汁 16dash、是啦差 4 吧勺、莳萝杆 50g（打碎）、脱脂牛奶 100g，混合均匀。","py":"wrml","pyf":"wenroumali","enlow":""},{"id":"r039","zh":"奥德赛","en":"","cat":"原创","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"麦芽威士忌","a":"30ml"},{"n":"橄榄汁","a":"30ml"},{"n":"红葡萄酒","a":"20ml"},{"n":"牛奶","a":"20ml"}],"premixes":[{"name":"麦芽威士忌","ingredients":[{"n":"波本威士忌","a":"700ml"},{"n":"麦芽","a":"200g"}],"method":"sousvide","temp":"60","duration":"2小时","note":"麦芽威士忌 制作：取波本威士忌 700ml、麦芽 200g，60℃ 低温慢煮 2 小时。"}],"note":"麦芽威士忌 制作：取波本威士忌 700ml、麦芽 200g，60℃ 低温慢煮 2 小时。\n奶洗结束后，每 80ml 加入苏格兰调和威士忌 10ml、生姜糖浆 10ml。","py":"ads","pyf":"aodesai","enlow":""},{"id":"r040","zh":"大地古典","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"五指毛桃蒸馏液","a":"40ml"},{"n":"黄油牛肝菌波本","a":"40ml"},{"n":"1:1糖浆","a":"5ml"},{"n":"安高天娜苦精","a":"1dash"}],"premixes":[{"name":"五指毛桃蒸馏液","ingredients":[{"n":"五指毛桃","a":"50g"},{"n":"伏特加","a":"700ml"}],"method":"sousvide","temp":"80","duration":"4小时","note":"五指毛桃蒸馏液 制作：取五指毛桃 50g、伏特加 700ml，80℃ 低温慢煮 4 小时后旋转蒸馏。"},{"name":"黄油牛肝菌波本","ingredients":[{"n":"牛肝菌","a":"4 个"},{"n":"松茸","a":"10 个"}],"method":"sousvide","temp":"60","duration":"4小时","note":"黄油牛肝菌波本 制作：取牛肝菌 4 个、松茸 10 个切片，黄油煎制后低温慢煮（60℃，4 小时），纱布过滤。"}],"note":"五指毛桃蒸馏液 制作：取五指毛桃 50g、伏特加 700ml，80℃ 低温慢煮 4 小时后旋转蒸馏。\n黄油牛肝菌波本 制作：取牛肝菌 4 个、松茸 10 个切片，黄油煎制后低温慢煮（60℃，4 小时），纱布过滤。","py":"ddgd","pyf":"dadigudian","enlow":""},{"id":"r041","zh":"普吉","en":"","cat":"原创","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"水","a":"30ml"},{"n":"橙汁","a":"90ml"},{"n":"芒果糖浆","a":"15ml"},{"n":"黄柠檬汁","a":"10ml"},{"n":"柠檬叶","a":"2 片"}],"premixes":[],"note":"","py":"pj","pyf":"puji","enlow":""},{"id":"r042","zh":"棉草地","en":"","cat":"原创","method":"stir","glass":"","garnish":"无花果碎小半勺淋在上面","ice":"","ingredients":[{"n":"椰子水","a":"150ml"},{"n":"蔓越莓糖浆","a":"10ml"},{"n":"脱脂牛奶","a":"50ml"},{"n":"抹茶","a":"小半勺"}],"premixes":[{"name":"奶盖","ingredients":[{"n":"脱脂牛奶","a":"50ml"},{"n":"抹茶","a":"小半勺"}],"method":"","temp":"","duration":"","note":"奶盖 制作：脱脂牛奶 50ml 与抹茶小半勺混合打匀。"}],"note":"奶盖 制作：脱脂牛奶 50ml 与抹茶小半勺混合打匀。","py":"mcd","pyf":"miancaodi","enlow":""},{"id":"r043","zh":"维多利亚","en":"","cat":"原创","method":"shake","glass":"大Coupe杯","garnish":"罗勒叶","ice":"无冰块","ingredients":[{"n":"白兰地","a":"45ml"},{"n":"汇源苹果汁","a":"20ml"},{"n":"萨酷乐斯接骨木花糖浆","a":"20ml"},{"n":"柠檬酸溶液","a":"20ml"},{"n":"巨峰葡萄汁","a":"20ml"},{"n":"罗勒纯露","a":"1ml"}],"premixes":[],"note":"","py":"wdly","pyf":"weiduoliya","enlow":""},{"id":"r044","zh":"溺爱","en":"","cat":"原创","method":"shake","glass":"","garnish":"康乃馨","ice":"","ingredients":[{"n":"Fino 雪莉酒","a":"30ml"},{"n":"比特储斯黄杏利口酒","a":"20ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"玫瑰蜂蜜","a":"10ml"},{"n":"仙人掌果","a":"1 barspoon（粉红色即可）"},{"n":"柠檬叶","a":"2 片"},{"n":"苏打水","a":"20ml"}],"premixes":[],"note":"","py":"na","pyf":"niai","enlow":""},{"id":"r045","zh":"奇异果莫吉托","en":"","cat":"原创","method":"blended","glass":"","garnish":"薄荷叶","ice":"","ingredients":[{"n":"金酒","a":"30ml"},{"n":"百香果糖浆","a":"15ml"},{"n":"奇异果汁","a":"60ml"},{"n":"奇异果","a":"半个"},{"n":"薄荷叶","a":"10 片"}],"premixes":[],"note":"","py":"qygmjt","pyf":"qiyiguomojituo","enlow":""},{"id":"r046","zh":"话梅汤力","en":"","cat":"原创","method":"stir","glass":"","garnish":"青柠角","ice":"","ingredients":[{"n":"话梅金酒","a":"45ml"},{"n":"青柠汁","a":"10ml"},{"n":"苏打水","a":"30ml"},{"n":"汤力水","a":"up"}],"premixes":[{"name":"话梅金酒","ingredients":[{"n":"话梅","a":"1 包"},{"n":"肉桂","a":"1 根"},{"n":"麦克米金酒","a":"700ml"},{"n":"普通麦克米金酒","a":""}],"method":"sousvide","temp":"80","duration":"2小时","note":"话梅金酒 制作：取话梅 1 包、肉桂 1 根、麦克米金酒 700ml，80℃ 低温慢煮 2 小时，再按 3:1 加入普通麦克米金酒稀释。"}],"note":"话梅金酒 制作：取话梅 1 包、肉桂 1 根、麦克米金酒 700ml，80℃ 低温慢煮 2 小时，再按 3:1 加入普通麦克米金酒稀释。","py":"hmtl","pyf":"huameitangli","enlow":""},{"id":"r047","zh":"蒙特祖玛的贡品","en":"","cat":"原创","method":"stir","glass":"","garnish":"橙皮红樱桃","ice":"","ingredients":[{"n":"Premix","a":"70ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"零陵香豆梅斯卡尔","a":"45ml"},{"n":"红味美思","a":"20ml"},{"n":"黑先生咖啡利口酒","a":"15ml"},{"n":"芳香苦精","a":"2ml"}],"method":"","temp":"","duration":"","note":""}],"note":"零陵香豆梅斯卡尔 制作：取梅斯卡尔一瓶，加入零陵香豆 2 颗浸泡 24 小时；倒出打碎后 80℃ 低温慢煮 2 小时，然后过滤。","py":"mtzmdgp","pyf":"mengtezumadegongpin","enlow":""},{"id":"r048","zh":"歌冰丽月","en":"","cat":"原创","method":"shake","glass":"香槟杯","garnish":"无装饰","ice":"","ingredients":[{"n":"柚子酒","a":"30ml"},{"n":"斑斓叶皮斯科","a":"30ml"},{"n":"柑曼怡","a":"15ml"},{"n":"文旦糖浆","a":"10ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"苏打水","a":"60ml"}],"premixes":[{"name":"斑斓叶皮斯科","ingredients":[{"n":"皮斯科","a":"700ml"},{"n":"斑斓叶","a":"50g"}],"method":"sousvide","temp":"60","duration":"1小时","note":"斑斓叶皮斯科 制作：取皮斯科 700ml、斑斓叶 50g，60℃ 慢煮 1 小时。"}],"note":"斑斓叶皮斯科 制作：取皮斯科 700ml、斑斓叶 50g，60℃ 慢煮 1 小时。","py":"gbly","pyf":"gebingliyue","enlow":""},{"id":"r049","zh":"花舍梨","en":"","cat":"原创","method":"shake","glass":"","garnish":"粽叶","ice":"","ingredients":[{"n":"威廉梨白兰地","a":"20ml"},{"n":"圣哲曼","a":"20ml"},{"n":"利莱白","a":"15ml"},{"n":"桂花糖浆","a":"5ml"},{"n":"黄柠檬汁","a":"10ml"},{"n":"苏打水","a":"45ml"}],"premixes":[],"note":"","py":"hsl","pyf":"huasheli","enlow":""},{"id":"r050","zh":"马孔多","en":"","cat":"原创","method":"stir","glass":"","garnish":"粽叶和香蕉片","ice":"","ingredients":[{"n":"香蕉澄清液","a":"60ml"},{"n":"PX 雪莉酒","a":"5ml"},{"n":"薄荷菲奈特","a":"5ml"},{"n":"香蕉利口酒","a":"2ml"}],"premixes":[{"name":"香蕉澄清液","ingredients":[{"n":"波本","a":"700ml"},{"n":"香蕉","a":"400g"},{"n":"巧克力","a":"40g"},{"n":"果胶酶","a":"2g"}],"method":"sousvide","temp":"60","duration":"4小时","note":"香蕉澄清液 制作：取波本 700ml、香蕉 400g、巧克力 40g，打碎在一起后加入 2% 果胶酶，60℃ 低温慢煮 4 小时，澄清过滤。"}],"note":"香蕉澄清液 制作：取波本 700ml、香蕉 400g、巧克力 40g，打碎在一起后加入 2% 果胶酶，60℃ 低温慢煮 4 小时，澄清过滤。","py":"mkd","pyf":"makongduo","enlow":""},{"id":"r051","zh":"稻香","en":"","cat":"原创","method":"shake","glass":"","garnish":"苦精拉花、香茅","ice":"","ingredients":[{"n":"斑斓叶皮斯科酒","a":"45ml"},{"n":"青柠汁","a":"15ml"},{"n":"百香果糖浆","a":"15ml"},{"n":"蛋清","a":"20ml"}],"premixes":[{"name":"斑斓叶皮斯科酒","ingredients":[{"n":"皮斯科酒","a":"一瓶"},{"n":"斑斓叶","a":"50g"}],"method":"sousvide","temp":"60","duration":"40分钟","note":"斑斓叶皮斯科酒 制作：取皮斯科酒一瓶、斑斓叶 50g，60℃ 低温慢煮 40 分钟。"}],"note":"斑斓叶皮斯科酒 制作：取皮斯科酒一瓶、斑斓叶 50g，60℃ 低温慢煮 40 分钟。","py":"dx","pyf":"daoxiang","enlow":""},{"id":"r052","zh":"大吉岭","en":"","cat":"原创","method":"shake","glass":"","garnish":"枫树叶","ice":"","ingredients":[{"n":"正山小种浸泡帝梵茶酒","a":"45ml"},{"n":"香博","a":"15ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"苏打水","a":"30ml"},{"n":"干姜水","a":"30ml"}],"premixes":[{"name":"正山小种浸泡帝梵茶酒","ingredients":[{"n":"帝梵茶酒","a":"一瓶"},{"n":"正山小种茶包","a":"3 包"}],"method":"steep","temp":"","duration":"3小时","note":"正山小种浸泡帝梵茶酒 制作：取帝梵茶酒一瓶，加入正山小种茶包 3 包，浸泡 3 小时。"}],"note":"正山小种浸泡帝梵茶酒 制作：取帝梵茶酒一瓶，加入正山小种茶包 3 包，浸泡 3 小时。","py":"djl","pyf":"dajiling","enlow":""},{"id":"r053","zh":"漫思茶","en":"","cat":"原创","method":"shake","glass":"","garnish":"红枣粽叶","ice":"","ingredients":[{"n":"八宝茶朗姆","a":"45ml"},{"n":"冬瓜茶","a":"30ml"},{"n":"红糖糖浆","a":"5ml"},{"n":"盐渍焦糖糖浆","a":"5ml"},{"n":"黄柠檬汁","a":"10ml"}],"premixes":[{"name":"八宝茶朗姆","ingredients":[{"n":"朗姆","a":"1000ml"},{"n":"八宝茶","a":"4 包"}],"method":"sousvide","temp":"80","duration":"","note":"八宝茶朗姆 制作：取朗姆 1000ml、八宝茶 4 包，80℃ 煮一小时。"}],"note":"八宝茶朗姆 制作：取朗姆 1000ml、八宝茶 4 包，80℃ 煮一小时。","py":"msc","pyf":"mansicha","enlow":""},{"id":"r054","zh":"射云红","en":"","cat":"原创","method":"stir","glass":"古典杯","garnish":"红枣","ice":"方冰","ingredients":[{"n":"水牛足迹波本威士忌","a":"30ml"},{"n":"混合坚果利口酒","a":"30ml"},{"n":"蔓越莓汁","a":"20ml"},{"n":"莫林红枣糖浆","a":"20ml"},{"n":"新鲜柠檬汁","a":"25ml"},{"n":"牛奶","a":"30ml"},{"n":"纯净水","a":"20ml"}],"premixes":[{"name":"混合坚果利口酒","ingredients":[{"n":"榛子利口酒","a":"120ml"},{"n":"帝萨诺杏仁利口酒","a":"140ml"},{"n":"莫林夏威夷果糖浆","a":"40ml"}],"method":"","temp":"","duration":"","note":"混合备用即可"}],"note":"","py":"syh","pyf":"sheyunhong","enlow":""},{"id":"r055","zh":"紫霞","en":"","cat":"原创","method":"shake","glass":"","garnish":"干紫藤花","ice":"","ingredients":[{"n":"桂花陈酒","a":"45ml"},{"n":"紫罗兰利口酒","a":"20ml"},{"n":"96 伏特加","a":"10ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"1:1糖浆","a":"10ml"}],"premixes":[],"note":"出品前，将苏打水 45ml 提前倒入杯中。","py":"zx","pyf":"zixia","enlow":""},{"id":"r056","zh":"妈妈的老古典","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"五指毛桃威士忌","a":"60ml"},{"n":"比特储斯法勒娜姆","a":"7ml"},{"n":"红糖糖浆","a":"5ml"},{"n":"安高天娜苦精","a":"1dash"}],"premixes":[{"name":"五指毛桃威士忌","ingredients":[{"n":"五指毛桃","a":"50g"},{"n":"波本威士忌","a":"700ml"}],"method":"sousvide","temp":"80","duration":"1小时","note":"五指毛桃威士忌 制作：取五指毛桃 50g、波本威士忌 700ml，80℃ 低温慢煮 1 小时。"}],"note":"五指毛桃威士忌 制作：取五指毛桃 50g、波本威士忌 700ml，80℃ 低温慢煮 1 小时。","py":"mmdlgd","pyf":"mamadelaogudian","enlow":""},{"id":"r057","zh":"叶奈法","en":"","cat":"原创","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"丁香花干邑","a":"45ml"},{"n":"黑加仑利口酒","a":"15ml"},{"n":"金巴利","a":"10ml"},{"n":"比特储斯紫罗兰","a":"2.5ml"},{"n":"柠檬","a":"10ml"}],"premixes":[{"name":"丁香花干邑","ingredients":[{"n":"丁香花","a":"20g"},{"n":"干邑","a":"1 瓶"}],"method":"sousvide","temp":"50","duration":"1小时","note":"丁香花干邑 制作：取丁香花 20g、干邑 1 瓶，50℃ 煮 1 小时。"}],"note":"丁香花干邑 制作：取丁香花 20g、干邑 1 瓶，50℃ 煮 1 小时。","py":"ynf","pyf":"yenaifa","enlow":""},{"id":"r058","zh":"花生汤","en":"","cat":"原创","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"花生朗姆混合液","a":"70ml"},{"n":"陕西稠酒","a":"30ml"}],"premixes":[{"name":"花生朗姆混合液","ingredients":[{"n":"花生","a":"80g"},{"n":"芋头","a":"80g"},{"n":"国产朗姆酒","a":"200ml"},{"n":"香草伏特加","a":"60ml"},{"n":"纯净水","a":"100ml"},{"n":"巧克力苦精","a":"10ml"}],"method":"","temp":"","duration":"","note":""}],"note":"预调 制作：取花生 80g（约一罐）、蒸好晾凉的芋头 80g、国产朗姆酒 200ml、香草伏特加 60ml、纯净水 100ml、巧克力苦精 10ml，全部打碎混合。出品时每 70ml 混合 30ml 陕西稠酒。","py":"hst","pyf":"huashengtang","enlow":""},{"id":"r059","zh":"咖啡尼格罗尼","en":"Coffee Negroni","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"奥美佳阿特兹","a":"30ml"},{"n":"金巴利","a":"10ml"},{"n":"希娜","a":"10ml"},{"n":"杜林干味美思","a":"20ml"},{"n":"黑先生咖啡利口酒","a":"10ml"}],"premixes":[],"note":"","py":"kfngln","pyf":"kafeinigeluoni","enlow":"coffee negroni"},{"id":"r060","zh":"黄油啤酒","en":"","cat":"原创","method":"","glass":"","garnish":"黄油奶盖加满","ice":"","ingredients":[{"n":"白啤啤酒","a":"一杯"},{"n":"百香果果酱","a":"15ml"},{"n":"苹果醋","a":"6ml"}],"premixes":[{"name":"奶盖","ingredients":[{"n":"奶油","a":"250ml"},{"n":"黄油","a":"50g"},{"n":"红糖","a":"25g"}],"method":"","temp":"","duration":"","note":"奶盖 制作：奶油 250ml、黄油 50g、红糖 25g，混合打发。"}],"note":"奶盖 制作：奶油 250ml、黄油 50g、红糖 25g，混合打发。","py":"hypj","pyf":"huangyoupijiu","enlow":""},{"id":"r061","zh":"血与酒","en":"Blood & Wine","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"苏格兰威士忌","a":"30ml"},{"n":"热红酒","a":"20ml"},{"n":"橙汁","a":"20ml"},{"n":"希零樱桃利口酒","a":"20ml"}],"premixes":[],"note":"","py":"xyj","pyf":"xueyujiu","enlow":"blood & wine"},{"id":"r062","zh":"绿洲与密阳","en":"","cat":"原创","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"Premix","a":"70ml"},{"n":"奶油","a":"20ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"蜜瓜朗姆","a":"45ml"},{"n":"芳泉巧克力苦艾酒","a":"10ml"},{"n":"阿佩罗","a":"10ml"},{"n":"榛子利口酒","a":"2.5ml"},{"n":"芳泉白苦艾酒","a":"1ml"},{"n":"橙子苦精","a":"1dash"},{"n":"巧克力苦精","a":"2 drop"}],"method":"","temp":"","duration":"","note":""},{"name":"蜜瓜朗姆","ingredients":[{"n":"蜜瓜干","a":"60g"},{"n":"国产朗姆","a":"600ml"},{"n":"果胶酶","a":"2g"}],"method":"sousvide","temp":"","duration":"24小时","note":"蜜瓜朗姆 制作：取蜜瓜干 60g、国产朗姆 600ml，打碎后加入果胶酶和淀粉酶，分解 24 小时。"}],"note":"蜜瓜朗姆 制作：取蜜瓜干 60g、国产朗姆 600ml，打碎后加入果胶酶和淀粉酶，分解 24 小时。","py":"lzymy","pyf":"lvzhouyumiyang","enlow":""},{"id":"r063","zh":"风里有水气","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"蜜瓜茉莉花烧酒","a":"30ml"},{"n":"澄清香蕉液体","a":"40ml"},{"n":"绿茶烧酒","a":"7.5ml"},{"n":"大伊雅美","a":"5ml"}],"premixes":[{"name":"澄清香蕉","ingredients":[{"n":"成熟香蕉","a":"500 克"},{"n":"水","a":"200 克"},{"n":"果胶酶","a":"1g"},{"n":"淀粉酶","a":"一勺尖"},{"n":"抗坏血酸钠","a":"一平勺"}],"method":"centrifuge","temp":"","duration":"","note":"澄清香蕉 制作：取成熟香蕉 500 克、水 200 克，加入果胶酶一平勺、淀粉酶一勺尖、抗坏血酸钠一平勺，一起打碎后静置一小时，再离心取澄清液。"},{"name":"蜜瓜茉莉花烧酒","ingredients":[{"n":"新鲜蜜瓜","a":"250 克"},{"n":"美鹤绿茶烧酒","a":"500ml"},{"n":"蜜瓜果酱","a":"45ml"},{"n":"果胶酶","a":"2g"},{"n":"茉莉花茶","a":"18 克"},{"n":"蜜瓜牛奶","a":"200ml"}],"method":"centrifuge","temp":"","duration":"","note":"蜜瓜茉莉花烧酒 制作：取新鲜蜜瓜 250 克、美鹤绿茶烧酒 500ml、蜜瓜果酱 45ml（约一小平勺）、果胶酶适量，一起打碎；再加入茉莉花茶 18 克，过夜冷萃。第二天先用过滤网滤掉茶叶与果渣，然后加入蜜瓜牛奶 200ml，静置片刻后离心，取澄清液备用。\n澄清香蕉 制作：取成熟香蕉 500 克、水 200 克，加入果胶酶一平勺、淀粉酶一勺尖、抗坏血酸钠一平勺，一起打碎后静置一小时，再离心取澄清液。"}],"note":"蜜瓜茉莉花烧酒 制作：取新鲜蜜瓜 250 克、美鹤绿茶烧酒 500ml、蜜瓜果酱 45ml（约一小平勺）、果胶酶适量，一起打碎；再加入茉莉花茶 18 克，过夜冷萃。第二天先用过滤网滤掉茶叶与果渣，然后加入蜜瓜牛奶 200ml，静置片刻后离心，取澄清液备用。\n澄清香蕉 制作：取成熟香蕉 500 克、水 200 克，加入果胶酶一平勺、淀粉酶一勺尖、抗坏血酸钠一平勺，一起打碎后静置一小时，再离心取澄清液。","py":"flysq","pyf":"fengliyoushuiqi","enlow":""},{"id":"r064","zh":"我会忘记炎热","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"巴旦木朗姆","a":"25ml"},{"n":"干雪莉","a":"20ml"},{"n":"澄清西瓜汁","a":"90ml"},{"n":"佩乔苦精","a":"1dash"},{"n":"苦艾","a":"1.5ml"}],"premixes":[{"name":"澄清西瓜汁","ingredients":[{"n":"盒马西瓜汁","a":"一瓶"},{"n":"西瓜糖浆","a":"60ml"},{"n":"佛手柑利口","a":"60ml"},{"n":"佛手柑果酱","a":"100ml"},{"n":"牛奶","a":"150ml"}],"method":"centrifuge","temp":"","duration":"","note":"澄清西瓜汁 制作：取盒马西瓜汁一瓶、西瓜糖浆 60ml、佛手柑利口 60ml、佛手柑果酱 100ml、牛奶 150ml，混合后静置片刻，再离心过滤取澄清液。"},{"name":"巴旦木朗姆","ingredients":[{"n":"蔗园三星朗姆","a":"700ml"},{"n":"烘烤过的巴旦木","a":"100 克"}],"method":"sousvide","temp":"70","duration":"3小时","note":"巴旦木朗姆 制作：取蔗园三星朗姆 700ml，与烘烤过的巴旦木 100 克一起打碎，低温慢煮（70℃，3 小时），冷却后直接过滤。"}],"note":"澄清西瓜汁 制作：取盒马西瓜汁一瓶、西瓜糖浆 60ml、佛手柑利口 60ml、佛手柑果酱 100ml、牛奶 150ml，混合后静置片刻，再离心过滤取澄清液。\n巴旦木朗姆 制作：取蔗园三星朗姆 700ml，与烘烤过的巴旦木 100 克一起打碎，低温慢煮（70℃，3 小时），冷却后直接过滤。","py":"whwjyr","pyf":"wohuiwangjiyanre","enlow":""},{"id":"r065","zh":"果树阴影里的泥","en":"","cat":"原创","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"哈瓦那三年","a":"20ml"},{"n":"百加得8年","a":"10ml"},{"n":"希纳","a":"20ml"},{"n":"1957干雪莉","a":"20ml"},{"n":"桃子利口","a":"5ml"},{"n":"桃子苦精","a":"0.4ml"}],"premixes":[],"note":"","py":"gsyyldn","pyf":"guoshuyinyinglideni","enlow":""},{"id":"r066","zh":"米与荔枝","en":"","cat":"原创","method":"shake","glass":"香槟杯","garnish":"","ice":"无冰块","ingredients":[{"n":"宝茸荔枝果蓉","a":"40ml"},{"n":"Sakari清酒","a":"60ml"},{"n":"美鹤乃舞烧酒","a":"15ml"},{"n":"贵妃荔枝利口酒","a":"10ml"},{"n":"柠檬酸溶液","a":"2.5ml"},{"n":"1:1糖浆","a":"5ml"},{"n":"kota斑斓利口酒","a":"10ml"}],"premixes":[],"note":"","py":"mylz","pyf":"miyulizhi","enlow":""},{"id":"r067","zh":"抹茶绿蚱蜢","en":"","cat":"原创","method":"shake","glass":"尼克诺拉杯","garnish":"","ice":"无冰块","ingredients":[{"n":"Sakari抹茶清酒","a":"45ml"},{"n":"马塞内茨白可可利口酒","a":"15ml"},{"n":"布兰卡薄荷","a":"15ml"},{"n":"雀巢淡奶油","a":"30ml"}],"premixes":[],"note":"","py":"mclzm","pyf":"mochalvzhameng","enlow":""},{"id":"r068","zh":"特蕾莎3号","en":"","cat":"原创","method":"shake","glass":"马天尼杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"金巴利","a":"15ml"},{"n":"尚朵尼苦酒","a":"15ml"},{"n":"坦福吉大师","a":"15ml"},{"n":"香博利口酒","a":"20ml"},{"n":"皮埃尔费朗干库拉索","a":"10ml"},{"n":"柠檬酸溶液","a":"15ml"}],"premixes":[],"note":"","py":"tls3h","pyf":"teleisha3hao","enlow":""},{"id":"r069","zh":"黑旗","en":"","cat":"原创","method":"build","glass":"柯林杯","garnish":"薄荷头和百香果干","ice":"摇冰","ingredients":[{"n":"澄清果汁","a":"80ml"},{"n":"蔗园三星朗姆","a":"15ml"},{"n":"青柠","a":"适量"},{"n":"薄荷","a":"适量"}],"premixes":[{"name":"澄清果汁","ingredients":[{"n":"杨雅奇异果汁","a":"1 升"},{"n":"添加利金酒","a":"600ml"},{"n":"卡曼橘果酱","a":"300ml"},{"n":"莫林百香果糖浆","a":"300ml"},{"n":"果胶酶","a":"3g"}],"method":"steep","temp":"","duration":"1小时","note":"澄清果汁 制作：取杨雅奇异果汁 1 升、添加利金酒 600ml、卡曼橘果酱 300ml、莫林百香果糖浆 300ml、果胶酶 3 平勺，混合后静置 1 小时。"}],"note":"澄清果汁 制作：取杨雅奇异果汁 1 升、添加利金酒 600ml、卡曼橘果酱 300ml、莫林百香果糖浆 300ml、果胶酶 3 平勺，混合后静置 1 小时。","py":"hq","pyf":"heiqi","enlow":""},{"id":"r070","zh":"西西弗斯的甘露","en":"","cat":"原创","method":"shake","glass":"柯林杯","garnish":"木头人","ice":"摇冰","ingredients":[{"n":"苦瓜朗姆","a":"45ml"},{"n":"圣哲曼接骨木花利口酒","a":"15ml"},{"n":"坷络芙Pale Cream雪莉酒","a":"15ml"},{"n":"玫瑰蜂蜜","a":"5ml"},{"n":"柠檬酸溶液","a":"15ml"},{"n":"苏打水","a":"30ml"}],"premixes":[{"name":"苦瓜朗姆","ingredients":[{"n":"蔗园三星朗姆","a":"750ml"},{"n":"去籽白玉苦瓜","a":"250g"},{"n":"果胶酶","a":"2g"}],"method":"sousvide","temp":"","duration":"24小时","note":"苦瓜朗姆 制作：取蔗园三星朗姆 750ml、去籽白玉苦瓜 250g，用料理棒打碎后加入 2% 果胶酶，分解 24 小时。"}],"note":"苦瓜朗姆 制作：取蔗园三星朗姆 750ml、去籽白玉苦瓜 250g，用料理棒打碎后加入 2% 果胶酶，分解 24 小时。","py":"xxfsdgl","pyf":"xixifusideganlu","enlow":""},{"id":"r071","zh":"极乐迪斯科","en":"","cat":"原创","method":"shake","glass":"tiki杯","garnish":"软糖+青柠","ice":"","ingredients":[{"n":"Premix","a":"90ml"},{"n":"黑先生咖啡利口酒","a":"2.5ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"蔗园69度黑朗姆酒","a":"15ml"},{"n":"蔗原三星朗姆","a":"30ml"},{"n":"蒂萨诺杏仁利口酒","a":"15ml"},{"n":"吉发得生姜利口酒","a":"10ml"},{"n":"百香果果茸","a":"30ml"},{"n":"菠萝汁","a":"20ml"},{"n":"柠檬酸溶液","a":"15ml"},{"n":"莫林香茅糖浆","a":"5ml"},{"n":"莫林菠萝糖浆","a":"5ml"},{"n":"跳羊咖啡利口酒","a":"10ml"},{"n":"牛奶","a":"30ml"}],"method":"","temp":"","duration":"","note":""}],"note":"黑先生咖啡利口酒 2.5ml 出品前再加入（不加入 Premix）。\nPremix 制作：蔗园69度黑朗姆酒 15ml、蔗原三星朗姆 30ml、蒂萨诺杏仁利口酒 15ml、吉发得生姜利口酒 10ml、百香果果茸 30ml、菠萝汁 20ml、柠檬酸溶液 15ml、莫林香茅糖浆 5ml、莫林菠萝糖浆 5ml、跳羊咖啡利口酒 10ml、牛奶 30ml，混合均匀。","py":"jldsk","pyf":"jiledisike","enlow":""},{"id":"r072","zh":"金苹果","en":"","cat":"原创","method":"shake","glass":"coupe杯","garnish":"苹果片金粉","ice":"无冰块","ingredients":[{"n":"迈夏尔12星麝香白兰地","a":"30ml"},{"n":"萨酷乐斯接骨木花糖浆","a":"15ml"},{"n":"金女巫利口酒","a":"2ml"},{"n":"麝香葡萄利口酒","a":"15ml"},{"n":"苹果汁","a":"15ml"},{"n":"罗勒叶纯露","a":"1ml"},{"n":"柠檬酸溶液","a":"10ml"}],"premixes":[],"note":"出品时以橙花水喷香。","py":"jpg","pyf":"jinpingguo","enlow":""},{"id":"r073","zh":"玫瑰里的玛格丽特","en":"","cat":"原创","method":"shake","glass":"","garnish":"芝麻边","ice":"","ingredients":[{"n":"唐胡里奥白龙舌兰","a":"30ml"},{"n":"Premix","a":"60ml"},{"n":"1:1糖浆","a":"2.5ml"},{"n":"苹果酸溶液","a":"2.5ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"三得利芒果利口酒","a":"10ml"},{"n":"君度","a":"30ml"},{"n":"苹果酸溶液","a":"10ml"},{"n":"帕马石榴利口酒","a":"10ml"},{"n":"青提","a":"4颗"},{"n":"牛奶","a":"20ml"}],"method":"","temp":"","duration":"","note":""}],"note":"Premix 制作：三得利芒果利口酒 10ml、君度 30ml、苹果酸溶液 10ml、帕马石榴利口酒 10ml、青提 4 颗、牛奶 20ml，混合均匀。","py":"mgldmglt","pyf":"meiguilidemagelite","enlow":""},{"id":"r074","zh":"柚子白尼格罗尼","en":"","cat":"原创","method":"stir","glass":"古典杯","garnish":"柠檬皮","ice":"方冰","ingredients":[{"n":"巍城夏日花园金酒","a":"30ml"},{"n":"Suze龙胆酒","a":"20ml"},{"n":"圣哲曼接骨木花利口酒","a":"10ml"},{"n":"好奇美国佬","a":"20ml"},{"n":"Sakari柚子清酒","a":"10ml"},{"n":"苹果酸溶液","a":"3.5ml"}],"premixes":[],"note":"","py":"yzbngln","pyf":"youzibainigeluoni","enlow":""},{"id":"r075","zh":"巧克力曼哈顿","en":"","cat":"原创","method":"stir","glass":"马天尼杯","garnish":"巧克力装饰","ice":"无冰块","ingredients":[{"n":"混合烈酒","a":"60ml"},{"n":"混合味美思","a":"30ml"},{"n":"柠檬苦精","a":"2ml"}],"premixes":[{"name":"混合烈酒","ingredients":[{"n":"零陵香豆瑞顿房","a":"200ml"},{"n":"苹果白兰地","a":"200ml"},{"n":"百加得8年","a":"200ml"},{"n":"75% 巧克力","a":"25g"}],"method":"freeze","temp":"","duration":"","note":"混合烈酒 制作：零陵香豆瑞顿房 200ml、苹果白兰地 200ml、百加得8年 200ml、75% 巧克力 25g，加热至巧克力融化，稍微揉搓至巧克力与酒液混合，冷冻至巧克力凝固后过滤。"},{"name":"零陵香豆瑞顿房","ingredients":[{"n":"零陵香豆","a":"15g"},{"n":"瑞顿房黑麦威士忌","a":"700ml"}],"method":"sousvide","temp":"50","duration":"1小时","note":"零陵香豆瑞顿房 制作：取零陵香豆 15g 用刨丝刀搓碎，混合瑞顿房 700ml，50℃ 低温慢煮 1 小时。"}],"note":"混合烈酒 制作：零陵香豆瑞顿房 200ml、苹果白兰地 200ml、百加得8年 200ml、75% 巧克力 25g，加热至巧克力融化，稍微揉搓至巧克力与酒液混合，冷冻至巧克力凝固后过滤。\n零陵香豆瑞顿房 制作：取零陵香豆 15g 用刨丝刀搓碎，混合瑞顿房 700ml，50℃ 低温慢煮 1 小时。","py":"qklmhd","pyf":"qiaokelimanhadun","enlow":""},{"id":"r076","zh":"洋甘菊马天尼","en":"","cat":"原创","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"海曼老汤姆金酒","a":"40ml"},{"n":"Premix","a":"40ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"洋甘菊金酒","a":"50ml"},{"n":"当酒","a":"15ml"},{"n":"Fino 雪莉酒","a":"20ml"},{"n":"牛奶","a":"20ml"}],"method":"","temp":"","duration":"","note":""}],"note":"洋甘菊金酒 制作：取添加利金酒 750ml、洋甘菊 25g，60℃ 低温慢煮 2 小时。\nPremix 制作：洋甘菊金酒 50ml、当酒 15ml、Fino 雪莉酒 20ml、牛奶 20ml，混合后加入牛奶奶洗。","py":"ygjmtn","pyf":"yangganjumatianni","enlow":""},{"id":"r077","zh":"彗星亚兹勒","en":"","cat":"原创","method":"stir","glass":"","garnish":"荔枝干","ice":"","ingredients":[{"n":"尊尼获加黑方","a":"45ml"},{"n":"佛手柑利口酒","a":"15ml"},{"n":"纳蒂尼苦酒","a":"10ml"},{"n":"大伊雅美烧酒","a":"10ml"},{"n":"水","a":"15ml"}],"premixes":[],"note":"","py":"hxyzl","pyf":"huixingyazilei","enlow":""},{"id":"r078","zh":"蜜蜂的触须","en":"","cat":"原创","method":"shake","glass":"古典杯","garnish":"蜂巢可可","ice":"","ingredients":[{"n":"巍城夏日花园金酒","a":"30ml"},{"n":"纪恩桃香金酒","a":"15ml"},{"n":"诺迪斯金酒","a":"5ml"},{"n":"3:1荔枝贵妃蜂蜜糖浆","a":"10ml"},{"n":"蔓越莓汁","a":"20ml"},{"n":"柠檬酸溶液","a":"15ml"}],"premixes":[],"note":"","py":"mfdcx","pyf":"mifengdechuxu","enlow":""},{"id":"r079","zh":"花舍梨（Teresa）","en":"","cat":"原创","method":"shake","glass":"柯林杯","garnish":"三色堇+梨片","ice":"摇冰","ingredients":[{"n":"威廉梨白兰地","a":"20ml"},{"n":"Grappa果渣白兰地","a":"15ml"},{"n":"圣哲曼接骨木花利口酒","a":"15ml"},{"n":"好奇美国佬","a":"10ml"},{"n":"桂花花糖浆","a":"5ml"},{"n":"柠檬酸溶液","a":"10ml"},{"n":"苏打水","a":"45ml"}],"premixes":[],"note":"花舍梨的特蕾莎酒吧版本。","py":"hsl（Teresa）","pyf":"huasheli（teresa）","enlow":""},{"id":"r080","zh":"血与酒（Teresa）","en":"","cat":"原创","method":"shake","glass":"尼可诺拉杯","garnish":"红枣装饰","ice":"","ingredients":[{"n":"麦卡伦12年","a":"20ml（不加入预调）"},{"n":"乐加维林8年","a":"10ml"},{"n":"希灵樱桃利口酒","a":"20ml"},{"n":"红枣味美思","a":"20ml"},{"n":"柠檬酸溶液","a":"5ml"}],"premixes":[{"name":"红枣味美思","ingredients":[{"n":"赤霞珠红酒","a":"700ml"},{"n":"君度","a":"75ml"},{"n":"火龙肉桂利口酒","a":"75ml"},{"n":"莫林红枣糖浆","a":"50ml"},{"n":"蒙特内罗","a":"50ml"},{"n":"橙汁","a":"150ml"},{"n":"柠檬酸溶液","a":"100ml"}],"method":"","temp":"","duration":"","note":"红枣味美思 制作：赤霞珠红酒 700ml、君度 75ml、火龙肉桂利口酒 75ml、莫林红枣糖浆 50ml、蒙特内罗 50ml、橙汁 150ml、柠檬酸溶液 100ml。"}],"note":"麦卡伦12年 20ml 不加入预调，出品时后加（淋面）。\n红枣味美思 制作：赤霞珠红酒 700ml、君度 75ml、火龙肉桂利口酒 75ml、莫林红枣糖浆 50ml、蒙特内罗 50ml、橙汁 150ml、柠檬酸溶液 100ml。","py":"xyj（Teresa）","pyf":"xueyujiu（teresa）","enlow":""},{"id":"r081","zh":"转瞬即逝的秋天","en":"","cat":"原创","method":"stir","glass":"尼克诺拉","garnish":"空心山楂","ice":"无冰块","ingredients":[{"n":"桂花话梅金酒","a":"30ml"},{"n":"植物乐团山楂金酒","a":"30ml"},{"n":"山地汶波特酒","a":"20ml"},{"n":"苹果酸溶液","a":"2.5ml"}],"premixes":[],"note":"","py":"zsjsdqt","pyf":"zhuanshunjishideqiutian","enlow":""},{"id":"r082","zh":"地里长出来的青苹果","en":"","cat":"原创","method":"shake","glass":"古典杯","garnish":"青苹果+迷迭香","ice":"方冰","ingredients":[{"n":"橄榄油洗添加利","a":"30ml"},{"n":"诺迪斯","a":"5ml"},{"n":"青苹果汁","a":"25ml"},{"n":"路萨朵青苹果利口酒","a":"2.5ml"},{"n":"迷迭香雪利酒","a":"5ml"},{"n":"圣哲曼","a":"5ml"},{"n":"苹果酸溶液","a":"13ml"},{"n":"1:1糖浆","a":"10ml"}],"premixes":[{"name":"橄榄油洗添加利","ingredients":[{"n":"添加利金酒","a":"700ml"},{"n":"橄榄油","a":"300ml"}],"method":"fatwash","temp":"","duration":"","note":""},{"name":"迷迭香雪利酒","ingredients":[{"n":"缇欧佩佩雪利酒","a":"200ml"},{"n":"迷迭香","a":"10g"}],"method":"sousvide","temp":"50","duration":"1小时","note":"时间千万不能长了！"}],"note":"","py":"dlzcldqpg","pyf":"dilizhangchulaideqingpingguo","enlow":""},{"id":"r083","zh":"花椒马天尼","en":"","cat":"原创","method":"stir","glass":"马天尼杯","garnish":"花椒","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"花椒味美思","a":"45ml"}],"premixes":[{"name":"花椒味美思","ingredients":[{"n":"古越龙山","a":"60ml"},{"n":"橙汁","a":"45ml"},{"n":"藤椒糖浆","a":"10ml"},{"n":"多香果利口酒","a":"10ml"},{"n":"牛奶","a":"30ml"}],"method":"milkwash","temp":"","duration":"","note":""}],"note":"","py":"hjmtn","pyf":"huajiaomatianni","enlow":""},{"id":"r084","zh":"潘登尼斯","en":"PENDENNIS CLUB","cat":"原创","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"黄杏利口酒","a":"10ml"},{"n":"青柠汁","a":"25ml"},{"n":"1:1糖浆","a":"10ml"},{"n":"佩乔苦精","a":"3dash"}],"premixes":[],"note":"","py":"pdns","pyf":"pandengnisi","enlow":"pendennis club"},{"id":"r085","zh":"可乐阿玛罗酸","en":"","cat":"原创","method":"shake","glass":"古典杯","garnish":"枫叶","ice":"方冰","ingredients":[{"n":"大咖宝","a":"15ml"},{"n":"希娜","a":"15ml"},{"n":"梅乐提","a":"15ml"},{"n":"可乐浓缩液","a":"15ml"},{"n":"马塞内茨黑加仑利口酒","a":"5ml"},{"n":"柠檬酸溶液","a":"15ml"}],"premixes":[{"name":"可乐浓缩液","ingredients":[{"n":"可口可乐","a":"990ml"}],"method":"","temp":"","duration":"","note":"熬煮，直到体积只剩300ml。如果熬少了就加水稀释到300ml"}],"note":"","py":"klamls","pyf":"keleamaluosuan","enlow":""},{"id":"r086","zh":"了不起的教父","en":"","cat":"原创","method":"stir","glass":"古典杯","garnish":"肉桂棒","ice":"方冰","ingredients":[{"n":"普洱茶黑方","a":"45ml"},{"n":"拉弗格精锐","a":"10ml"},{"n":"苹果栗子利口酒","a":"10ml"},{"n":"杏仁利口酒","a":"15ml"},{"n":"火龙肉桂利口酒","a":"7.5ml"}],"premixes":[{"name":"普洱茶黑方","ingredients":[{"n":"普洱茶","a":"20g"},{"n":"黑方","a":"750ml"}],"method":"sousvide","temp":"60","duration":"1小时","note":""}],"note":"","py":"lbqdjf","pyf":"liaobuqidejiaofu","enlow":""},{"id":"r087","zh":"望梅","en":"","cat":"原创","method":"stir","glass":"柯林杯","garnish":"蓝莓","ice":"摇冰","ingredients":[{"n":"Premix","a":"100ml"},{"n":"苏打水","a":"45ml"}],"premixes":[{"name":"Premix","ingredients":[{"n":"山楂金酒","a":"15ml"},{"n":"话梅金酒","a":"30ml"},{"n":"韩国蓝莓醋","a":"30ml"},{"n":"柠檬酸溶液","a":"30ml"}],"method":"","temp":"","duration":"","note":""},{"name":"话梅金酒","ingredients":[{"n":"金酒","a":"750ml"},{"n":"同享话梅","a":"一包"}],"method":"sousvide","temp":"80","duration":"2小时","note":""},{"name":"山楂金酒","ingredients":[{"n":"金酒","a":"700ml"},{"n":"新鲜山楂","a":"800g"},{"n":"砂糖","a":"150g"},{"n":"柠檬酸颗粒","a":"3g"}],"method":"","temp":"","duration":"","note":""}],"note":"","py":"wm","pyf":"wangmei","enlow":""},{"id":"r088","zh":"紫苏萨泽拉克","en":"","cat":"原创","method":"stir","glass":"白兰地杯","garnish":"","ice":"无冰块","ingredients":[{"n":"瑞顿房黑麦威士忌","a":"30ml"},{"n":"白兰地","a":"30ml"},{"n":"紫苏糖浆","a":"1ml"},{"n":"Roots乳香利口酒","a":"2.5ml"},{"n":"芳泉苦艾酒","a":"2.5ml"},{"n":"2:1 红糖糖浆","a":"5ml"},{"n":"佩乔苦精","a":"3ml"}],"premixes":[{"name":"紫苏糖浆","ingredients":[{"n":"紫苏叶","a":"500g"},{"n":"砂糖","a":"500g"}],"method":"","temp":"","duration":"","note":"糖和紫苏叶混合揉捻出汁，然后煮沸"}],"note":"","py":"zsszlk","pyf":"zisusazelake","enlow":""},{"id":"r089","zh":"山楂纸飞机","en":"","cat":"原创","method":"shake","glass":"马天尼杯","garnish":"纸飞机","ice":"","ingredients":[{"n":"山楂金酒","a":"30ml"},{"n":"阿佩罗","a":"20ml"},{"n":"NONINO","a":"20ml"},{"n":"6%酒石酸溶液","a":"30ml"},{"n":"蓝莓醋","a":"2.5"}],"premixes":[],"note":"","py":"szzfj","pyf":"shanzhazhifeiji","enlow":""},{"id":"r090","zh":"苹果马天尼","en":"","cat":"原创","method":"stir","glass":"马天尼杯","garnish":"苹果片","ice":"无冰块","ingredients":[{"n":"灰雁伏特加","a":"45ml"},{"n":"汇源苹果汁","a":"40ml"},{"n":"1:1糖浆","a":"2.5ml"},{"n":"苹果酸溶液","a":"2.5ml"}],"premixes":[],"note":"","py":"pgmtn","pyf":"pingguomatianni","enlow":""},{"id":"r295","zh":"罗马马天尼","en":"","cat":"原创","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"添加利金酒","a":"45ml"},{"n":"Fino雪利酒","a":"30ml"},{"n":"日本番茄利口酒","a":"10ml"},{"n":"百里香利口酒","a":"5ml"}],"premixes":[],"note":"","py":"lmmtn","pyf":"luomamatianni","enlow":""},{"id":"r091","zh":"纸飞机","en":"Paper Plane","cat":"经典","method":"shake","glass":"coupe","garnish":"","ice":"无冰块","ingredients":[{"n":"水牛足迹波本威士忌","a":"20ml"},{"n":"Nonino Amaro","a":"20ml"},{"n":"阿佩罗","a":"20ml"},{"n":"柠檬酸溶液","a":"20ml"}],"premixes":[],"note":"","py":"zfj","pyf":"zhifeiji","enlow":"paper plane"},{"id":"r092","zh":"长岛冰茶","en":"Long Island Ice Tea","cat":"经典","method":"shake","glass":"柯林杯","garnish":"柠檬片装饰","ice":"摇冰","ingredients":[{"n":"金酒","a":"10ml"},{"n":"朗姆酒","a":"15ml"},{"n":"龙舌兰","a":"20ml"},{"n":"伏特加","a":"15ml"},{"n":"君度","a":"15ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"柠檬片","a":"3片"},{"n":"可乐","a":"30ml"}],"premixes":[],"note":"柠檬片 3 片在摇壶里捣一下。","py":"zdbc","pyf":"zhangdaobingcha","enlow":"long island ice tea"},{"id":"r093","zh":"僵尸","en":"Zombie","cat":"经典","method":"shake","glass":"TIKI 杯","garnish":"菠萝片和薄荷","ice":"","ingredients":[{"n":"白朗姆","a":"15ml"},{"n":"黑朗姆","a":"15ml"},{"n":"Cubita 151 朗姆","a":"15ml"},{"n":"法勒纳姆","a":"10ml"},{"n":"百香果糖浆","a":"15ml"},{"n":"菠萝糖浆","a":"10ml"},{"n":"黄柠檬汁","a":"30ml"},{"n":"菠萝汁","a":"45ml"},{"n":"安高天娜苦精","a":"2ml"}],"premixes":[],"note":"","py":"js","pyf":"jiangshi","enlow":"zombie"},{"id":"r094","zh":"斯普莫尼","en":"Spumoni","cat":"经典","method":"build","glass":"柯林杯","garnish":"西柚片","ice":"摇冰","ingredients":[{"n":"金巴利","a":"30ml"},{"n":"西柚汁","a":"30ml"},{"n":"汤力水","a":"60ml"}],"premixes":[],"note":"","py":"spmn","pyf":"sipumoni","enlow":"spumoni"},{"id":"r095","zh":"大都会","en":"Cosmopolitan","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"柠檬伏特加","a":"45ml"},{"n":"君度","a":"20ml"},{"n":"蔓越莓汁","a":"20ml"},{"n":"蔓越莓糖浆","a":"5ml"},{"n":"青柠汁","a":"20ml"}],"premixes":[],"note":"","py":"ddh","pyf":"daduhui","enlow":"cosmopolitan"},{"id":"r096","zh":"椰林飘香","en":"Pina Colada","cat":"经典","method":"shake","glass":"TIKI 杯","garnish":"菠萝片薄荷头","ice":"","ingredients":[{"n":"白朗姆酒","a":"45ml"},{"n":"水妈妈椰浆","a":"30ml"},{"n":"椰子糖浆","a":"10ml"},{"n":"菠萝糖浆","a":"10ml"},{"n":"菠萝汁","a":"60ml"},{"n":"青柠汁","a":"20ml"}],"premixes":[],"note":"","py":"ylpx","pyf":"yelinpiaoxiang","enlow":"pina colada"},{"id":"r097","zh":"尼格罗尼","en":"Negroni","cat":"经典","method":"stir","glass":"古典杯","garnish":"橙皮","ice":"方冰","ingredients":[{"n":"季之美金酒","a":"30ml"},{"n":"自制味美思","a":"30ml"},{"n":"自制阿马罗","a":"30ml"}],"premixes":[{"name":"自制味美思","ingredients":[{"n":"安提卡福门","a":"10ml"},{"n":"潘脱蜜","a":"10ml"},{"n":"曼奇诺","a":"10ml"}],"method":"","temp":"","duration":"","note":""},{"name":"自制阿马罗","ingredients":[{"n":"金巴利","a":"10ml"},{"n":"尚朵尼","a":"10ml"},{"n":"坦福吉大师","a":"10ml"}],"method":"","temp":"","duration":"","note":""}],"note":"自制味美思：安提卡福门、潘脱蜜、曼奇诺，按 1:1:1 混合。\n自制阿马罗（金巴利风格）：金巴利、尚朵尼、坦福吉大师，按 1:1:1 混合。","py":"ngln","pyf":"nigeluoni","enlow":"negroni"},{"id":"r098","zh":"盘尼西林","en":"Penicillin","cat":"经典","method":"shake","glass":"古典杯","garnish":"姜片","ice":"方冰","ingredients":[{"n":"苏格兰威士忌","a":"45ml"},{"n":"3:1蜂蜜糖浆","a":"20ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"生姜片","a":"2片"},{"n":"拉弗格精锐","a":"10ml"}],"premixes":[],"note":"","py":"pnxl","pyf":"pannixilin","enlow":"penicillin"},{"id":"r099","zh":"蜂之膝","en":"Bee's Knees","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"巍城夏日花园金酒","a":"45ml"},{"n":"3:1蜂蜜糖浆","a":"15ml"},{"n":"黄柠檬汁","a":"15ml"}],"premixes":[],"note":"","py":"fzx","pyf":"fengzhixi","enlow":"bee's knees"},{"id":"r100","zh":"意式浓缩马天尼","en":"Espresso Martini","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"意式浓缩咖啡","a":"20ml"},{"n":"灰雁伏特加","a":"45ml"},{"n":"黑先生咖啡利口酒","a":"10ml"},{"n":"3:1蜂蜜糖浆","a":"2.5ml"}],"premixes":[],"note":"","py":"ysnsmtn","pyf":"yishinongsuomatianni","enlow":"espresso martini"},{"id":"r101","zh":"马天尼","en":"Dry Martini","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"橄榄","ice":"无冰块","ingredients":[{"n":"干金酒（添加利）","a":"60ml"},{"n":"干味美思（园林）","a":"10ml"},{"n":"橙味苦精","a":"1dash"}],"premixes":[],"note":"出品前酒液喷柠檬皮","py":"mtn","pyf":"matianni","enlow":"dry martini"},{"id":"r102","zh":"曼哈顿","en":"Manhattan","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"橙皮","ice":"无冰块","ingredients":[{"n":"瑞顿房黑麦威士忌","a":"60ml"},{"n":"红味美思","a":"30ml"},{"n":"安高天娜苦精","a":"1dash"}],"premixes":[],"note":"橙皮喷香。","py":"mhd","pyf":"manhadun","enlow":"manhattan"},{"id":"r103","zh":"莫吉托","en":"Mojito","cat":"经典","method":"smash","glass":"莫吉托杯","garnish":"薄荷头","ice":"","ingredients":[{"n":"白朗姆酒","a":"60ml"},{"n":"青柠汁","a":"15ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"青柠角","a":"4 个"},{"n":"薄荷叶","a":"一把"}],"premixes":[],"note":"","py":"mjt","pyf":"mojituo","enlow":"mojito"},{"id":"r104","zh":"威士忌酸","en":"Whiskey Sour","cat":"经典","method":"shake","glass":"古典杯","garnish":"柠檬皮","ice":"","ingredients":[{"n":"水牛足迹波本威士忌","a":"45ml"},{"n":"柠檬酸溶液","a":"20ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"苦精","a":"1dash"},{"n":"1:10盐水","a":"2drop"}],"premixes":[],"note":"","py":"wsjs","pyf":"weishijisuan","enlow":"whiskey sour"},{"id":"r105","zh":"古典鸡尾酒","en":"Old Fashioned","cat":"经典","method":"stir","glass":"古典杯","garnish":"橙皮","ice":"方冰","ingredients":[{"n":"瑞顿房黑麦威士忌","a":"40ml"},{"n":"美鹤乃舞烧酒","a":"40ml"},{"n":"2:1红糖糖浆","a":"5ml"}],"premixes":[],"note":"","py":"gdjwj","pyf":"gudianjiweijiu","enlow":"old fashioned"},{"id":"r106","zh":"黛绮莉","en":"Daiquiri","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"青柠角","ice":"无冰块","ingredients":[{"n":"蔗园三星朗姆酒","a":"30ml"},{"n":"哈瓦那3年","a":"30ml"},{"n":"青柠汁","a":"20ml"},{"n":"1:1糖浆","a":"15ml"}],"premixes":[],"note":"","py":"dql","pyf":"daiqili","enlow":"daiquiri"},{"id":"r107","zh":"玛格丽特","en":"Margarita","cat":"经典","method":"shake","glass":"玛格丽特杯","garnish":"青柠角","ice":"","ingredients":[{"n":"唐胡里奥龙舌兰","a":"40ml"},{"n":"奥美佳阿特兹","a":"10ml"},{"n":"青柠汁","a":"20ml"},{"n":"君度","a":"20ml"},{"n":"糖浆","a":"5ml"}],"premixes":[],"note":"","py":"mglt","pyf":"magelite","enlow":"margarita"},{"id":"r108","zh":"莫斯科骡子","en":"Moscow Mule","cat":"经典","method":"shake","glass":"铜杯","garnish":"薄荷头","ice":"摇冰","ingredients":[{"n":"伏特加","a":"60ml"},{"n":"生姜糖浆","a":"15ml"},{"n":"青柠汁","a":"30ml"},{"n":"干姜水","a":"up"}],"premixes":[],"note":"","py":"msklz","pyf":"mosikeluozi","enlow":"moscow mule"},{"id":"r109","zh":"花花公子","en":"Boulevardier","cat":"经典","method":"stir","glass":"古典杯","garnish":"橙皮","ice":"方冰","ingredients":[{"n":"波本威士忌","a":"30ml"},{"n":"红味美思","a":"30ml"},{"n":"金巴利","a":"30ml"}],"premixes":[],"note":"","py":"hhgz","pyf":"huahuagongzi","enlow":"boulevardier"},{"id":"r110","zh":"法式马天尼","en":"French Martini","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"菠萝干","ice":"无冰块","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"香博利口酒","a":"15ml"},{"n":"菠萝糖浆","a":"5ml（经典配方没这个）"},{"n":"菠萝汁","a":"20ml"}],"premixes":[],"note":"","py":"fsmtn","pyf":"fashimatianni","enlow":"french martini"},{"id":"r111","zh":"凯匹林纳","en":"Caipirinha","cat":"经典","method":"smash","glass":"古典杯","garnish":"青柠","ice":"碎冰","ingredients":[{"n":"卡萨莎甘蔗酒","a":"60ml"},{"n":"3:1蜂蜜糖浆（经典配方是糖浆）","a":"20ml"},{"n":"青柠檬","a":"半个"}],"premixes":[],"note":"","py":"kpln","pyf":"kaipilinna","enlow":"caipirinha"},{"id":"r112","zh":"萨泽拉克","en":"Sazerac","cat":"经典","method":"stir","glass":"白兰地杯","garnish":"橙皮喷香扔掉","ice":"","ingredients":[{"n":"干邑（问客人要黑麦还是干邑）","a":"60ml"},{"n":"2:1红糖糖浆","a":"5ml"},{"n":"佩乔苦精","a":"5dash"},{"n":"芳泉苦艾酒","a":"5ml"}],"premixes":[],"note":"","py":"szlk","pyf":"sazelake","enlow":"sazerac"},{"id":"r113","zh":"汤米家的玛格丽特","en":"Tommy's Margarita","cat":"经典","method":"shake","glass":"古典杯","garnish":"青柠角","ice":"方冰","ingredients":[{"n":"100% 龙舌兰","a":"45ml"},{"n":"青柠汁","a":"20ml"},{"n":"龙舌兰糖浆","a":"10ml"}],"premixes":[],"note":"","py":"tmjdmglt","pyf":"tangmijiademagelite","enlow":"tommy's margarita"},{"id":"r114","zh":"迈泰","en":"Mai Tai","cat":"经典","method":"shake","glass":"古典杯","garnish":"菠萝干薄荷头","ice":"碎冰","ingredients":[{"n":"蔗园菠萝朗姆","a":"15ml"},{"n":"白朗姆","a":"30ml"},{"n":"杏仁糖浆","a":"15ml"},{"n":"君度","a":"10ml"},{"n":"青柠汁","a":"25ml"}],"premixes":[],"note":"","py":"mt","pyf":"maitai","enlow":"mai tai"},{"id":"r115","zh":"美国佬","en":"Americano","cat":"经典","method":"stir","glass":"柯林杯","garnish":"橙皮","ice":"摇冰","ingredients":[{"n":"红味美思","a":"30ml"},{"n":"金巴利","a":"30ml"},{"n":"苏打水","a":"up"}],"premixes":[],"note":"","py":"mgl","pyf":"meiguolao","enlow":"americano"},{"id":"r116","zh":"黑俄罗斯","en":"Black Russian","cat":"经典","method":"stir","glass":"古典杯","garnish":"咖啡豆","ice":"方冰","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"咖啡利口酒","a":"15ml"}],"premixes":[],"note":"","py":"hels","pyf":"heieluosi","enlow":"black russian"},{"id":"r117","zh":"白俄罗斯","en":"White Russian","cat":"经典","method":"stir","glass":"古典杯","garnish":"","ice":"方冰","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"咖啡利口酒","a":"20ml"},{"n":"淡奶油","a":"20ml"}],"premixes":[],"note":"","py":"bels","pyf":"baieluosi","enlow":"white russian"},{"id":"r118","zh":"新加坡司令","en":"Singapore Sling","cat":"经典","method":"shake","glass":"柯林杯","garnish":"菠萝干红樱桃","ice":"摇冰","ingredients":[{"n":"金酒","a":"45ml"},{"n":"君度","a":"15ml"},{"n":"樱桃利口酒（Heering）","a":"10ml"},{"n":"当酒","a":"10ml"},{"n":"红石榴糖浆","a":"5ml"},{"n":"安高天娜苦精","a":"1dash"},{"n":"菠萝汁","a":"45ml"},{"n":"黄柠檬汁","a":"25ml"}],"premixes":[],"note":"","py":"xjpsl","pyf":"xinjiaposiling","enlow":"singapore sling"},{"id":"r119","zh":"马颈","en":"Horse's Neck","cat":"经典","method":"stir","glass":"柯林杯","garnish":"柠檬皮卷","ice":"摇冰","ingredients":[{"n":"白兰地","a":"45ml"},{"n":"干姜水","a":"90ml"}],"premixes":[],"note":"","py":"mj","pyf":"majing","enlow":"horse's neck"},{"id":"r120","zh":"白鸽","en":"Paloma","cat":"经典","method":"stir","glass":"柯林杯","garnish":"西柚片","ice":"摇冰","ingredients":[{"n":"龙舌兰","a":"45ml"},{"n":"西柚气泡水（可替代西柚汁 45ml + 苏打水 45ml）","a":"90ml"}],"premixes":[],"note":"","py":"bg","pyf":"baige","enlow":"paloma"},{"id":"r121","zh":"薄荷朱丽普","en":"Mint Julep","cat":"经典","method":"shake","glass":"朱丽普杯","garnish":"薄荷头","ice":"碎冰","ingredients":[{"n":"波本威士忌","a":"45ml"},{"n":"1:1糖浆","a":"10ml"},{"n":"薄荷叶","a":"6 片"}],"premixes":[],"note":"","py":"bhzlp","pyf":"bohezhulipu","enlow":"mint julep"},{"id":"r122","zh":"树莓","en":"Bramble","cat":"经典","method":"shake","glass":"古典杯","garnish":"树莓装饰","ice":"碎冰","ingredients":[{"n":"金酒","a":"45ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"1:1糖浆","a":"10ml"},{"n":"香博利口酒","a":"10ml（最后淋上去）"}],"premixes":[],"note":"","py":"sm","pyf":"shumei","enlow":"bramble"},{"id":"r123","zh":"罗布罗伊","en":"Rob Roy","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"橙皮","ice":"无冰块","ingredients":[{"n":"苏格兰威士忌","a":"70ml"},{"n":"红味美思","a":"20ml"},{"n":"安高天娜苦精","a":"2dash"}],"premixes":[],"note":"","py":"lbly","pyf":"luobuluoyi","enlow":"rob roy"},{"id":"r124","zh":"维斯帕","en":"Vesper","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"金酒（电影里用的是哥顿）","a":"60ml"},{"n":"伏特加","a":"20ml"},{"n":"利莱白（好奇美国佬）","a":"15ml"}],"premixes":[],"note":"","py":"wsp","pyf":"weisipa","enlow":"vesper"},{"id":"r125","zh":"金菲士","en":"Gin Fizz","cat":"经典","method":"shake","glass":"柯林杯","garnish":"柠檬皮","ice":"摇冰","ingredients":[{"n":"金酒（风味金酒）","a":"45ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"苏打水","a":"up"}],"premixes":[],"note":"","py":"jfs","pyf":"jinfeishi","enlow":"gin fizz"},{"id":"r126","zh":"猴腺","en":"Monkey Gland","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"橙皮","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"橙汁","a":"30ml"},{"n":"红石榴糖浆","a":"5ml"},{"n":"苦艾酒","a":"3 把勺"}],"premixes":[],"note":"","py":"hx","pyf":"houxian","enlow":"monkey gland"},{"id":"r127","zh":"皮斯科酸","en":"Pisco Sour","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"苦精拉花","ice":"无冰块","ingredients":[{"n":"皮斯科酒","a":"45ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"青柠汁","a":"15ml"},{"n":"蛋白","a":"20ml"}],"premixes":[],"note":"","py":"psks","pyf":"pisikesuan","enlow":"pisco sour"},{"id":"r128","zh":"榛子酸","en":"Frangelico Sour","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"苦精拉花","ice":"无冰块","ingredients":[{"n":"榛子利口酒","a":"30ml"},{"n":"波本","a":"30ml"},{"n":"1:1糖浆","a":"10ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"蛋白","a":"20ml"}],"premixes":[],"note":"","py":"zzs","pyf":"zhenzisuan","enlow":"frangelico sour"},{"id":"r129","zh":"白色佳人","en":"White Lady","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"干金酒","a":"45ml"},{"n":"君度","a":"20ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"1:1糖浆","a":"5ml"}],"premixes":[],"note":"","py":"bsjr","pyf":"baisejiaren","enlow":"white lady"},{"id":"r130","zh":"三叶草俱乐部","en":"Clover Club","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"红樱桃","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"干味美思","a":"15ml（历史上有的）"},{"n":"黄柠檬汁","a":"20ml"},{"n":"树莓糖浆","a":"15ml"},{"n":"蛋清","a":"一个"}],"premixes":[],"note":"","py":"sycjlb","pyf":"sanyecaojulebu","enlow":"clover club"},{"id":"r131","zh":"飞行","en":"Aviation","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"红樱桃","ice":"无冰块","ingredients":[{"n":"金酒","a":"60ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"黑樱桃利口酒","a":"15ml"},{"n":"紫罗兰利口酒","a":"7ml"}],"premixes":[],"note":"","py":"fx","pyf":"feixing","enlow":"aviation"},{"id":"r132","zh":"白色尼格罗尼","en":"White Negroni","cat":"经典","method":"stir","glass":"古典杯","garnish":"柠檬皮","ice":"方冰","ingredients":[{"n":"金酒","a":"30ml"},{"n":"利莱白","a":"30ml"},{"n":"苏姿龙胆酒","a":"30ml"}],"premixes":[],"note":"","py":"bsngln","pyf":"baisenigeluoni","enlow":"white negroni"},{"id":"r133","zh":"海明威黛绮莉","en":"Hemingway Daiquiri","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"青柠角","ice":"无冰块","ingredients":[{"n":"白朗姆","a":"45ml"},{"n":"西柚汁","a":"15ml"},{"n":"青柠汁","a":"30ml"},{"n":"黑樱桃利口酒","a":"15ml"}],"premixes":[],"note":"","py":"hmwdql","pyf":"haimingweidaiqili","enlow":"hemingway daiquiri"},{"id":"r134","zh":"边车","en":"Sidecar","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"干邑白兰地","a":"45ml"},{"n":"君度","a":"10ml"},{"n":"皮埃尔费朗干库拉索","a":"10ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"1:1糖浆","a":"5ml"}],"premixes":[],"note":"","py":"bc","pyf":"bianche","enlow":"sidecar"},{"id":"r135","zh":"血与沙","en":"Blood and Sand","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"橙皮","ice":"无冰块","ingredients":[{"n":"苏格兰威士忌","a":"20ml"},{"n":"樱桃利口酒","a":"20ml"},{"n":"红味美思","a":"20ml"},{"n":"橙汁（调整酸甜）","a":"20ml"}],"premixes":[],"note":"","py":"xys","pyf":"xueyusha","enlow":"blood and sand"},{"id":"r136","zh":"法兰西 75","en":"French 75","cat":"经典","method":"shake","glass":"香槟杯","garnish":"","ice":"","ingredients":[{"n":"金酒","a":"45ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"香槟","a":"加满"}],"premixes":[],"note":"","py":"flx 75","pyf":"falanxi 75","enlow":"french 75"},{"id":"r137","zh":"老广场","en":"Vieux Carré","cat":"经典","method":"stir","glass":"coupe 杯","garnish":"橙皮","ice":"无冰块","ingredients":[{"n":"干邑白兰地","a":"30ml"},{"n":"黑麦威士忌","a":"30ml"},{"n":"红味美思","a":"20ml"},{"n":"当酒","a":"10ml"},{"n":"佩乔苦精","a":"2dash"},{"n":"安高天娜苦精","a":"2dash"}],"premixes":[],"note":"","py":"lgc","pyf":"laoguangchang","enlow":"vieux carré"},{"id":"r138","zh":"遗言","en":"Last Word","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"红樱桃","ice":"无冰块","ingredients":[{"n":"金酒","a":"20ml"},{"n":"黑樱桃利口酒","a":"20ml"},{"n":"青柠汁","a":"20ml"},{"n":"查特绿","a":"20ml"}],"premixes":[],"note":"","py":"yy","pyf":"yiyan","enlow":"last word"},{"id":"r139","zh":"死者复生2号","en":"Corpse Reviver #2","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"20ml"},{"n":"利莱白","a":"20ml"},{"n":"君度","a":"20ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"芳泉苦艾酒","a":"1 吧勺"}],"premixes":[],"note":"","py":"szfs2h","pyf":"sizhefusheng2hao","enlow":"corpse reviver #2"},{"id":"r140","zh":"血腥玛丽","en":"Bloody Mary","cat":"经典","method":"rolling","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"番茄汁","a":"90ml"},{"n":"蔓越莓糖浆","a":"15ml"},{"n":"柠檬酸溶液","a":"15ml"},{"n":"李派林喼汁","a":"3dash"},{"n":"辣椒仔","a":"3dash"}],"premixes":[],"note":"","py":"xxml","pyf":"xuexingmali","enlow":"bloody mary"},{"id":"r141","zh":"马丁内斯","en":"Martinez","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"红樱桃","ice":"无冰块","ingredients":[{"n":"干金酒","a":"60ml"},{"n":"红味美思","a":"15ml"},{"n":"黑樱桃利口酒","a":"10ml"},{"n":"安高天娜苦精","a":"2dash"}],"premixes":[],"note":"","py":"mdns","pyf":"madingneisi","enlow":"martinez"},{"id":"r142","zh":"汉基潘基","en":"Hanky Panky","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"干金酒","a":"40ml"},{"n":"红味美思","a":"40ml"},{"n":"菲奈特","a":"8ml"}],"premixes":[],"note":"","py":"hjpj","pyf":"hanjipanji","enlow":"hanky panky"},{"id":"r143","zh":"特蕾莎","en":"Teresa","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"柠檬皮装饰","ice":"无冰块","ingredients":[{"n":"金巴利","a":"45ml"},{"n":"黑加仑利口酒","a":"20ml"},{"n":"黄柠檬汁","a":"30ml"}],"premixes":[],"note":"","py":"tls","pyf":"teleisha","enlow":"teresa"},{"id":"r144","zh":"特立尼达酸","en":"Trinidad Sour","cat":"经典","method":"shake","glass":"古典杯","garnish":"肉桂棒","ice":"方冰","ingredients":[{"n":"黑朗姆","a":"30ml"},{"n":"安高天娜苦精","a":"20ml"},{"n":"杏仁糖浆","a":"15ml"},{"n":"火龙肉桂","a":"10ml"},{"n":"黄柠檬汁","a":"25ml"}],"premixes":[],"note":"","py":"tlnds","pyf":"telinidasuan","enlow":"trinidad sour"},{"id":"r145","zh":"杰克罗斯","en":"Jack Rose","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"苹果白兰地","a":"45ml"},{"n":"红石榴糖浆","a":"15ml"},{"n":"黄柠檬汁","a":"25ml"}],"premixes":[],"note":"","py":"jkls","pyf":"jiekeluosi","enlow":"jack rose"},{"id":"r146","zh":"","en":"B&B","cat":"经典","method":"stir","glass":"古典杯","garnish":"柠檬皮","ice":"方冰","ingredients":[{"n":"干邑","a":"45ml"},{"n":"法国当酒","a":"15ml"}],"premixes":[],"note":"","py":"","pyf":"","enlow":"b&b"},{"id":"r147","zh":"纽约","en":"New York","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"红樱桃装饰","ice":"无冰块","ingredients":[{"n":"波本威士忌","a":"45ml"},{"n":"红石榴糖浆","a":"15ml"},{"n":"1:1糖浆","a":"10ml"},{"n":"黄柠檬汁","a":"30ml"}],"premixes":[],"note":"","py":"ny","pyf":"niuyue","enlow":"new york"},{"id":"r148","zh":"宝石","en":"Bijou","cat":"经典","method":"stir","glass":"coupe 杯","garnish":"橙皮喷香后丢弃","ice":"无冰块","ingredients":[{"n":"干金酒","a":"30ml"},{"n":"甜味美思","a":"20ml"},{"n":"查特绿","a":"10ml"},{"n":"橙味苦精","a":"1dash"}],"premixes":[],"note":"原版 1:1:1。","py":"bs","pyf":"baoshi","enlow":"bijou"},{"id":"r149","zh":"破冰","en":"Ice Breaker","cat":"经典","method":"shake","glass":"古典杯","garnish":"盐边青柠角","ice":"方冰","ingredients":[{"n":"龙舌兰酒","a":"30ml"},{"n":"君度","a":"15ml"},{"n":"粉西柚汁","a":"30ml"},{"n":"红石榴糖浆","a":"1 把勺"}],"premixes":[],"note":"","py":"pb","pyf":"pobing","enlow":"ice breaker"},{"id":"r150","zh":"蓝色夏威夷","en":"Blue Hawaii","cat":"经典","method":"shake","glass":"飓风杯","garnish":"红樱桃菠萝干","ice":"","ingredients":[{"n":"朗姆酒","a":"45ml"},{"n":"伏特加","a":"15ml"},{"n":"蓝橙利口酒","a":"10ml"},{"n":"菠萝汁","a":"45ml"},{"n":"青柠汁","a":"15ml"},{"n":"1:1糖浆","a":"15ml"}],"premixes":[],"note":"","py":"lsxwy","pyf":"lansexiaweiyi","enlow":"blue hawaii"},{"id":"r151","zh":"大都会2号","en":"Metropole No.2","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"黑加仑利口酒","a":"15ml"},{"n":"君度","a":"15ml"},{"n":"青柠汁","a":"20ml"}],"premixes":[],"note":"","py":"ddh2h","pyf":"daduhui2hao","enlow":"metropole no.2"},{"id":"r152","zh":"鳕鱼角","en":"Cape Cod","cat":"经典","method":"build","glass":"柯林杯","garnish":"红樱桃装饰","ice":"摇冰","ingredients":[{"n":"伏特加","a":"30ml"},{"n":"蔓越莓糖浆","a":"15ml"},{"n":"蔓越莓汁","a":"90ml"}],"premixes":[],"note":"","py":"xyj","pyf":"xueyujiao","enlow":"cape cod"},{"id":"r153","zh":"","en":"XYZ","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"青柠角","ice":"无冰块","ingredients":[{"n":"白朗姆","a":"45ml"},{"n":"君度","a":"20ml"},{"n":"青柠汁","a":"20ml"}],"premixes":[],"note":"","py":"","pyf":"","enlow":"xyz"},{"id":"r154","zh":"巴萨诺瓦","en":"Bossa Nova","cat":"经典","method":"shake","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"白朗姆","a":"30ml"},{"n":"加力安奴","a":"20ml"},{"n":"青柠汁","a":"15ml"},{"n":"黄杏利口酒","a":"10ml"},{"n":"菠萝汁","a":"60ml"}],"premixes":[],"note":"","py":"bsnw","pyf":"basanuowa","enlow":"bossa nova"},{"id":"r155","zh":"佛罗里达","en":"Florida No.1","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"樱桃","ice":"无冰块","ingredients":[{"n":"白朗姆","a":"60ml"},{"n":"黑樱桃利口酒","a":"10ml"},{"n":"青柠汁","a":"15ml"},{"n":"1:1糖浆","a":"15ml"}],"premixes":[],"note":"","py":"flld","pyf":"fuluolida","enlow":"florida no.1"},{"id":"r156","zh":"札幌","en":"Sapporo","cat":"经典","method":"stir","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"杏仁利口酒","a":"20ml"},{"n":"干味美思","a":"15ml"},{"n":"查特绿","a":"10ml"}],"premixes":[],"note":"","py":"zh","pyf":"zhahuang","enlow":"sapporo"},{"id":"r157","zh":"魔鬼","en":"El Diablo","cat":"经典","method":"shake","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"龙舌兰","a":"45ml"},{"n":"黑加仑利口酒","a":"15ml"},{"n":"青柠汁","a":"10ml"},{"n":"干姜水","a":"60ml"}],"premixes":[],"note":"","py":"mg","pyf":"mogui","enlow":"el diablo"},{"id":"r158","zh":"法国情怀","en":"French Connection","cat":"经典","method":"build","glass":"古典杯","garnish":"柠檬皮","ice":"","ingredients":[{"n":"干邑","a":"45ml"},{"n":"杏仁利口酒","a":"20ml"}],"premixes":[],"note":"","py":"fgqh","pyf":"faguoqinghuai","enlow":"french connection"},{"id":"r159","zh":"法式香吻","en":"French Kiss","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"杏仁利口酒","a":"20ml"},{"n":"百利甜","a":"20ml"},{"n":"榛子利口酒","a":"20ml"}],"premixes":[],"note":"","py":"fsxw","pyf":"fashixiangwen","enlow":"french kiss"},{"id":"r160","zh":"完美女人","en":"Perfect Lady","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"桃子利口酒","a":"10ml"},{"n":"黄柠檬汁","a":"25ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"蛋白","a":"一整个"}],"premixes":[],"note":"","py":"wmnr","pyf":"wanmeinvren","enlow":"perfect lady"},{"id":"r161","zh":"黑夜风暴","en":"Dark & Stormy","cat":"经典","method":"shake","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"黑朗姆","a":"45ml"},{"n":"青柠汁","a":"15ml"},{"n":"1:1糖浆","a":"5ml"},{"n":"干姜水","a":"60ml"}],"premixes":[],"note":"","py":"hyfb","pyf":"heiyefengbao","enlow":"dark & stormy"},{"id":"r162","zh":"生锈钉","en":"Rusty Nail","cat":"经典","method":"build","glass":"古典杯","garnish":"","ice":"","ingredients":[{"n":"苏格兰调和性威士忌","a":"45ml"},{"n":"杜林标","a":"20ml"}],"premixes":[],"note":"","py":"sxd","pyf":"shengxiuding","enlow":"rusty nail"},{"id":"r163","zh":"加里波利","en":"Garibaldi","cat":"经典","method":"build","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"金巴利","a":"45ml"},{"n":"橙汁","a":"90ml"}],"premixes":[],"note":"","py":"jlbl","pyf":"jialiboli","enlow":"garibaldi"},{"id":"r164","zh":"白兰地库斯塔","en":"Brandy Crusta","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"糖边","ice":"无冰块","ingredients":[{"n":"干邑","a":"45ml"},{"n":"君度","a":"15ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"Maraschino 黑樱桃利口酒","a":"20ml"},{"n":"安高天娜苦精","a":"2dash"}],"premixes":[],"note":"","py":"bldkst","pyf":"bailandikusita","enlow":"brandy crusta"},{"id":"r165","zh":"航空邮件","en":"Airmail","cat":"经典","method":"shake","glass":"香槟杯","garnish":"","ice":"","ingredients":[{"n":"陈年朗姆","a":"45ml"},{"n":"青柠汁","a":"22ml"},{"n":"接骨木花利口酒","a":"15ml"},{"n":"起泡酒","a":"加满"}],"premixes":[],"note":"","py":"hkyj","pyf":"hangkongyoujian","enlow":"airmail"},{"id":"r166","zh":"哈维撞墙","en":"Harvey Wallbanger","cat":"经典","method":"shake","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"橙汁","a":"90ml"},{"n":"加力安奴","a":"10ml"}],"premixes":[],"note":"","py":"hwzq","pyf":"haweizhuangqiang","enlow":"harvey wallbanger"},{"id":"r167","zh":"香榭丽舍","en":"Champs-Élysées","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"白兰地","a":"45ml"},{"n":"查特绿","a":"20ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"1:1糖浆","a":"10ml"},{"n":"安高天娜苦精","a":"1dash"}],"premixes":[],"note":"","py":"xxls","pyf":"xiangxielishe","enlow":"champs-élysées"},{"id":"r168","zh":"自由自在","en":"Fancy-Free","cat":"经典","method":"build","glass":"古典杯","garnish":"","ice":"","ingredients":[{"n":"黑麦威士忌","a":"60ml"},{"n":"黑樱桃利口酒","a":"15ml"},{"n":"安高天娜苦精","a":"1dash"},{"n":"橙味苦精","a":"1dash"}],"premixes":[],"note":"","py":"zyzz","pyf":"ziyouzizai","enlow":"fancy-free"},{"id":"r169","zh":"绿蚱蜢","en":"Grasshopper","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"白可可利口酒","a":"30ml"},{"n":"薄荷利口酒","a":"30ml"},{"n":"淡奶油","a":"30ml"}],"premixes":[],"note":"","py":"lzm","pyf":"lvzhameng","enlow":"grasshopper"},{"id":"r170","zh":"卢西恩·高丁","en":"Lucien Gaudin","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"干金酒","a":"45ml"},{"n":"干味美思","a":"15ml"},{"n":"金巴利","a":"15ml"},{"n":"君度","a":"15ml"}],"premixes":[],"note":"","py":"lxe·gd","pyf":"luxien·gaoding","enlow":"lucien gaudin"},{"id":"r171","zh":"墨西哥行刑队","en":"Mexican Firing Squad","cat":"经典","method":"shake","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"龙舌兰","a":"45ml"},{"n":"青柠汁","a":"20ml"},{"n":"红石榴糖浆","a":"20ml"},{"n":"安高天娜苦精","a":"2dash"},{"n":"苏打水","a":"60ml"}],"premixes":[],"note":"","py":"mxgxxd","pyf":"moxigexingxingdui","enlow":"mexican firing squad"},{"id":"r172","zh":"普利克内斯","en":"Preakness","cat":"经典","method":"stir","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"波本","a":"45ml"},{"n":"红味美思","a":"20ml"},{"n":"法国当酒","a":"7ml"},{"n":"芳香苦精","a":"1dash"}],"premixes":[],"note":"","py":"plkns","pyf":"pulikeneisi","enlow":"preakness"},{"id":"r173","zh":"多伦多","en":"Toronto","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"黑麦威士忌","a":"60ml"},{"n":"菲奈特","a":"15ml"},{"n":"红糖浆","a":"1 把勺"}],"premixes":[],"note":"","py":"dld","pyf":"duolunduo","enlow":"toronto"},{"id":"r174","zh":"8区","en":"Ward 8","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"黑麦威士忌","a":"60ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"橙汁","a":"15ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"红石榴糖浆","a":"1 把勺"}],"premixes":[],"note":"","py":"8q","pyf":"8qu","enlow":"ward 8"},{"id":"r175","zh":"席琳菲士","en":"Celine Fizz","cat":"经典","method":"shake","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"普利茅斯金酒","a":"45ml"},{"n":"圣哲曼","a":"15ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"蛋清","a":"一个"}],"premixes":[],"note":"","py":"xlfs","pyf":"xilinfeishi","enlow":"celine fizz"},{"id":"r176","zh":"寡妇之吻","en":"Widow's Kiss","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"苹果白兰地","a":"45ml"},{"n":"查特黄","a":"5ml"},{"n":"当酒","a":"10ml"},{"n":"安高天娜苦精","a":"1dash"}],"premixes":[],"note":"","py":"gfzw","pyf":"guafuzhiwen","enlow":"widow's kiss"},{"id":"r177","zh":"修道院","en":"Abbey","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"利莱白","a":"20ml"},{"n":"橙汁","a":"20ml"},{"n":"安高天娜苦精","a":"1dash"}],"premixes":[],"note":"","py":"xdy","pyf":"xiudaoyuan","enlow":"abbey"},{"id":"r178","zh":"阿拉巴马监狱","en":"Alabama Slammer","cat":"经典","method":"shake","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"黑刺李金酒","a":"20ml"},{"n":"杏仁利口酒","a":"20ml"},{"n":"金馥利口酒","a":"20ml"},{"n":"黄柠檬汁","a":"10ml"},{"n":"橙汁","a":"45ml"}],"premixes":[],"note":"","py":"albmjy","pyf":"alabamajianyu","enlow":"alabama slammer"},{"id":"r179","zh":"金色的梦","en":"Golden Dream","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"君度","a":"30ml"},{"n":"橙汁","a":"30ml"},{"n":"加力安奴","a":"5ml"},{"n":"淡奶油","a":"20ml"}],"premixes":[],"note":"","py":"jsdm","pyf":"jinsedemeng","enlow":"golden dream"},{"id":"r180","zh":"茉莉","en":"Jasmine","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"黄柠檬汁","a":"22.5ml"},{"n":"君度","a":"7.5ml"},{"n":"金巴利","a":"7.5ml"}],"premixes":[],"note":"","py":"ml","pyf":"moli","enlow":"jasmine"},{"id":"r181","zh":"三叉戟","en":"Trident","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"干雪莉酒","a":"30ml"},{"n":"希娜","a":"30ml"},{"n":"阿夸维特","a":"30ml"},{"n":"桃子利口酒（原版是桃子苦精）","a":"1 把勺"}],"premixes":[],"note":"","py":"scj","pyf":"sanchaji","enlow":"trident"},{"id":"r182","zh":"查特绿史威泽","en":"Chartreuse Swizzle","cat":"经典","method":"shake","glass":"柯林杯","garnish":"薄荷叶","ice":"碎冰","ingredients":[{"n":"查特绿","a":"45ml"},{"n":"菠萝汁","a":"30ml"},{"n":"青柠汁","a":"20ml"},{"n":"法勒纳姆","a":"15ml"}],"premixes":[],"note":"","py":"ctlswz","pyf":"chatelvshiweize","enlow":"chartreuse swizzle"},{"id":"r183","zh":"淘金热","en":"Gold Rush","cat":"经典","method":"shake","glass":"古典杯","garnish":"橙皮","ice":"","ingredients":[{"n":"波本威士忌","a":"45ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"3:1蜂蜜糖浆","a":"15ml"}],"premixes":[],"note":"","py":"tjr","pyf":"taojinre","enlow":"gold rush"},{"id":"r184","zh":"竹子","en":"Bamboo","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"竹子叶","ice":"无冰块","ingredients":[{"n":"缇欧佩佩Fino雪莉酒","a":"30ml"},{"n":"园林干味美思","a":"15ml"},{"n":"好奇美国佬","a":"15ml"},{"n":"1957雪利酒","a":"15ml"},{"n":"橙味苦精","a":"2dash"}],"premixes":[],"note":"","py":"zz","pyf":"zhuzi","enlow":"bamboo"},{"id":"r185","zh":"红钩子","en":"Red Hook","cat":"经典","method":"stir","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"黑麦威士忌","a":"60ml"},{"n":"黑樱桃利口酒","a":"15ml"},{"n":"潘托密","a":"15ml"}],"premixes":[],"note":"","py":"hgz","pyf":"honggouzi","enlow":"red hook"},{"id":"r186","zh":"金金骡子","en":"Gin-Gin Mule","cat":"经典","method":"build","glass":"莫吉托杯","garnish":"","ice":"","ingredients":[{"n":"干金酒","a":"45ml"},{"n":"1:1糖浆","a":"20ml"},{"n":"青柠汁","a":"30ml"},{"n":"薄荷叶","a":"6 片"},{"n":"干姜水","a":"30ml"}],"premixes":[],"note":"","py":"jjlz","pyf":"jinjinluozi","enlow":"gin-gin mule"},{"id":"r187","zh":"路易斯安那","en":"À La Louisiane","cat":"经典","method":"stir","glass":"白兰地杯","garnish":"红樱桃装饰","ice":"","ingredients":[{"n":"黑麦威士忌","a":"20ml"},{"n":"当酒","a":"20ml"},{"n":"甜味美思","a":"20ml"},{"n":"苦艾酒","a":"3dash"},{"n":"佩乔苦精","a":"3dash"}],"premixes":[],"note":"","py":"lysan","pyf":"luyisianna","enlow":"à la louisiane"},{"id":"r188","zh":"缅因记忆","en":"Remember the Maine","cat":"经典","method":"stir","glass":"coupe 杯","garnish":"红樱桃","ice":"无冰块","ingredients":[{"n":"黑麦","a":"60ml"},{"n":"甜味美思","a":"20ml"},{"n":"希灵樱桃利口酒","a":"15ml"},{"n":"苦艾酒","a":"半把勺"}],"premixes":[],"note":"","py":"myjy","pyf":"mianyinjiyi","enlow":"remember the maine"},{"id":"r189","zh":"丛林鸟","en":"Jungle Bird","cat":"经典","method":"shake","glass":"TIKI 杯","garnish":"","ice":"","ingredients":[{"n":"黑朗姆","a":"45ml"},{"n":"菠萝汁","a":"45ml"},{"n":"金巴利","a":"20ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"青柠汁","a":"15ml"}],"premixes":[],"note":"","py":"cln","pyf":"conglinniao","enlow":"jungle bird"},{"id":"r190","zh":"受苦的混蛋","en":"Suffering Bastard","cat":"经典","method":"shake","glass":"古典杯","garnish":"","ice":"碎冰","ingredients":[{"n":"白兰地","a":"30ml"},{"n":"金酒","a":"30ml"},{"n":"青柠汁","a":"20ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"菠萝汁","a":"20ml"},{"n":"安高天娜苦精","a":"1dash"},{"n":"干姜水","a":"60ml"}],"premixes":[],"note":"","py":"skdhd","pyf":"shoukudehundan","enlow":"suffering bastard"},{"id":"r191","zh":"性感沙滩","en":"Sex on the Beach","cat":"经典","method":"shake","glass":"飓风杯","garnish":"菠萝片红樱桃","ice":"","ingredients":[{"n":"伏特加","a":"30ml"},{"n":"桃子利口酒","a":"30ml"},{"n":"蔓越莓汁","a":"30ml"},{"n":"橙汁","a":"30ml"},{"n":"菠萝汁","a":"30ml"},{"n":"红石榴糖浆","a":"10ml"},{"n":"黄柠檬汁","a":"15ml"}],"premixes":[],"note":"","py":"xgst","pyf":"xingganshatan","enlow":"sex on the beach"},{"id":"r192","zh":"拉莫斯金菲士","en":"Ramos Gin Fizz","cat":"经典","method":"shake","glass":"柯林杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"金酒","a":"60ml"},{"n":"淡奶油","a":"30ml"},{"n":"1:1糖浆","a":"20ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"橙花水","a":"5ml"},{"n":"蛋清","a":"1 个"},{"n":"苏打水","a":"加至顶出 3cm 左右"}],"premixes":[],"note":"","py":"lmsjfs","pyf":"lamosijinfeishi","enlow":"ramos gin fizz"},{"id":"r193","zh":"1919","en":"","cat":"经典","method":"stir","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"干邑","a":"22.5ml"},{"n":"梅斯卡尔","a":"22.5ml"},{"n":"黑樱桃利口酒","a":"15ml"},{"n":"佩乔苦精","a":"2dash"}],"premixes":[],"note":"","py":"1919","pyf":"1919","enlow":""},{"id":"r194","zh":"可怕的爱","en":"Terrible Love","cat":"经典","method":"stir","glass":"古典杯","garnish":"","ice":"方冰","ingredients":[{"n":"梅斯卡尔","a":"45ml"},{"n":"苏姿利口酒","a":"20ml"},{"n":"圣哲曼","a":"15ml"},{"n":"橙味苦精","a":"1dash"}],"premixes":[],"note":"","py":"kpda","pyf":"kepadeai","enlow":"terrible love"},{"id":"r195","zh":"柚子","en":"Yuzu","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"20ml"},{"n":"阿佩罗","a":"20ml"},{"n":"圣哲曼","a":"20ml"},{"n":"青柠汁","a":"20ml"}],"premixes":[],"note":"","py":"yz","pyf":"youzi","enlow":"yuzu"},{"id":"r196","zh":"摇摆","en":"Wibble","cat":"经典","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"金酒","a":"30ml"},{"n":"黑刺李金酒","a":"30ml"},{"n":"黑加仑利口酒","a":"10ml"},{"n":"西柚汁","a":"30ml"},{"n":"青柠汁","a":"10ml"},{"n":"1:1糖浆","a":"5ml"}],"premixes":[],"note":"","py":"yb","pyf":"yaobai","enlow":"wibble"},{"id":"r197","zh":"国王谷","en":"Kings Valley","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"苏格兰威士忌","a":"60ml"},{"n":"君度","a":"15ml"},{"n":"青柠","a":"15ml"},{"n":"蓝橙利口酒","a":"10ml"}],"premixes":[],"note":"","py":"gwg","pyf":"guowanggu","enlow":"kings valley"},{"id":"r198","zh":"夹片杯","en":"Clip Joint Cup","cat":"经典","method":"shake","glass":"TIKI 杯","garnish":"","ice":"","ingredients":[{"n":"雅梵娜","a":"30ml"},{"n":"潘脱蜜","a":"30ml"},{"n":"德梅拉拉糖浆","a":"15ml"},{"n":"生姜糖浆","a":"7ml"},{"n":"青柠汁","a":"7ml"},{"n":"苏打水","a":"30ml"},{"n":"汤力水","a":"30ml"},{"n":"黄瓜条","a":"1 条"},{"n":"西柚皮","a":"1 片"}],"premixes":[],"note":"","py":"jpb","pyf":"jiapianbei","enlow":"clip joint cup"},{"id":"r199","zh":"外交官","en":"Diplomat","cat":"经典","method":"stir","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"干味美思","a":"45ml"},{"n":"红味美思","a":"40ml"},{"n":"黑樱桃利口酒","a":"20ml"},{"n":"橙味苦精","a":"2dash"}],"premixes":[],"note":"","py":"wjg","pyf":"waijiaoguan","enlow":"diplomat"},{"id":"r200","zh":"死者复生1号","en":"Corpse Reviver #1","cat":"经典","method":"stir","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"干邑","a":"45ml"},{"n":"苹果白兰地","a":"20ml"},{"n":"红味美思","a":"20ml"}],"premixes":[],"note":"","py":"szfs1h","pyf":"sizhefusheng1hao","enlow":"corpse reviver #1"},{"id":"r201","zh":"乒乓","en":"Ping Pang","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"黑刺李金酒","a":"45ml"},{"n":"紫罗兰利口酒","a":"20ml"},{"n":"黄柠檬汁","a":"20ml"}],"premixes":[],"note":"","py":"pp","pyf":"pingpang","enlow":"ping pang"},{"id":"r202","zh":"阿拉斯加","en":"Alaska","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"老汤姆金酒","a":"60ml"},{"n":"查特黄","a":"15ml"},{"n":"橙味苦精","a":"适量"}],"premixes":[],"note":"","py":"alsj","pyf":"alasijia","enlow":"alaska"},{"id":"r203","zh":"丛林中的豪伊","en":"Howie in the Jungle","cat":"经典","method":"shake","glass":"","garnish":"","ice":"","ingredients":[{"n":"阿马罗","a":"45ml"},{"n":"阿佩罗","a":"22.5ml"},{"n":"菠萝汁","a":"22.5ml"},{"n":"青柠汁","a":"22.5ml"},{"n":"希零樱桃利口酒","a":"15ml"},{"n":"百香果糖浆","a":"7.5ml"}],"premixes":[],"note":"","py":"clzdhy","pyf":"conglinzhongdehaoyi","enlow":"howie in the jungle"},{"id":"r204","zh":"火鸡摇摆","en":"Jive Turkey","cat":"经典","method":"stir","glass":"","garnish":"","ice":"","ingredients":[{"n":"黑麦","a":"30ml"},{"n":"水牛足迹波本","a":"20ml"},{"n":"蒙特内罗","a":"10ml"},{"n":"Nonino","a":"10ml"},{"n":"圣哲曼","a":"7.5ml"},{"n":"干味美思","a":"20ml"},{"n":"安高天娜苦精","a":"1dash"}],"premixes":[],"note":"","py":"hjyb","pyf":"huojiyaobai","enlow":"jive turkey"},{"id":"r205","zh":"福特","en":"Ford","cat":"经典","method":"stir","glass":"","garnish":"","ice":"","ingredients":[{"n":"老汤姆金酒","a":"40ml"},{"n":"干味美思","a":"40ml"},{"n":"当酒","a":"10ml"}],"premixes":[],"note":"","py":"ft","pyf":"fute","enlow":"ford"},{"id":"r206","zh":"吉姆雷特","en":"Gimlet","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"哥顿金酒（南非）","a":"60ml"},{"n":"青柠汁","a":"15ml"},{"n":"1:1糖浆","a":"10ml"}],"premixes":[],"note":"","py":"jmlt","pyf":"jimuleite","enlow":"gimlet"},{"id":"r207","zh":"会馆菲士","en":"Kaikan Fizz","cat":"经典","method":"shake","glass":"柯林杯","garnish":"柠檬皮","ice":"摇冰","ingredients":[{"n":"金酒","a":"50ml"},{"n":"牛奶","a":"30ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"1:1糖浆","a":"15ml"}],"premixes":[],"note":"","py":"hgfs","pyf":"huiguanfeishi","enlow":"kaikan fizz"},{"id":"r208","zh":"贝里尼","en":"Bellini","cat":"经典","method":"build","glass":"香槟杯","garnish":"桃子片","ice":"无冰块","ingredients":[{"n":"桃子果泥","a":"45ml"},{"n":"起泡酒","a":"120ml"},{"n":"桃子利口酒（可选）","a":"10ml"},{"n":"酸甜（自由调整）","a":"10ml"}],"premixes":[],"note":"","py":"bln","pyf":"beilini","enlow":"bellini"},{"id":"r209","zh":"横滨","en":"Yokohama","cat":"经典","method":"shake","glass":"尼克诺拉杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"30ml"},{"n":"伏特加","a":"20ml"},{"n":"橙汁","a":"30ml"},{"n":"红石榴糖浆","a":"5ml"},{"n":"芳泉苦艾酒","a":"5ml"}],"premixes":[],"note":"","py":"hb","pyf":"hengbin","enlow":"yokohama"},{"id":"r210","zh":"恩佐尼","en":"Enzoni","cat":"经典","method":"shake","glass":"古典杯","garnish":"青提","ice":"方冰","ingredients":[{"n":"金酒","a":"30ml"},{"n":"金巴利","a":"30ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"青提","a":"5颗"}],"premixes":[],"note":"","py":"ezn","pyf":"enzuoni","enlow":"enzoni"},{"id":"r211","zh":"汤姆柯林斯","en":"Tom Collins","cat":"经典","method":"shake","glass":"柯林杯","garnish":"柠檬皮","ice":"摇冰","ingredients":[{"n":"老汤姆金酒","a":"45ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"苏打水","a":"60ml"}],"premixes":[],"note":"","py":"tmkls","pyf":"tangmukelinsi","enlow":"tom collins"},{"id":"r212","zh":"弗朗西斯阿尔伯特","en":"Francis Albert","cat":"经典","method":"stir","glass":"古典杯","garnish":"","ice":"方冰","ingredients":[{"n":"添加利","a":"40ml"},{"n":"威凤凰珍藏波本","a":"40ml"}],"premixes":[],"note":"","py":"flxsaebt","pyf":"fulangxisiaerbote","enlow":"francis albert"},{"id":"r213","zh":"干草堆","en":"Haystack","cat":"经典","method":"shake","glass":"Coupe杯","garnish":"","ice":"无冰块","ingredients":[{"n":"波本威士忌","a":"30ml"},{"n":"苏姿龙胆酒","a":"20ml"},{"n":"比特储斯黄杏利口酒","a":"20ml"},{"n":"黄柠檬汁","a":"20ml"}],"premixes":[],"note":"","py":"gcd","pyf":"gancaodui","enlow":"haystack"},{"id":"r214","zh":"阿佩罗橙光","en":"Aperol Spritz","cat":"经典","method":"build","glass":"红酒杯","garnish":"橙子片","ice":"摇冰","ingredients":[{"n":"阿佩罗","a":"45ml"},{"n":"柠檬酸溶液","a":"10ml"},{"n":"1:1糖浆","a":"10ml"},{"n":"干型起泡酒","a":"100ml"}],"premixes":[],"note":"","py":"aplcg","pyf":"apeiluochengguang","enlow":"aperol spritz"},{"id":"r215","zh":"杏仁酸","en":"Amaretto Sour","cat":"经典","method":"shake","glass":"Coupe杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"帝萨诺杏仁利口酒","a":"40ml"},{"n":"威凤凰珍藏威士忌","a":"20ml"},{"n":"黄柠檬汁","a":"30ml"},{"n":"1:1糖浆","a":"5ml"},{"n":"蛋清（可选）","a":"15ml"}],"premixes":[],"note":"","py":"xrs","pyf":"xingrensuan","enlow":"amaretto sour"},{"id":"r216","zh":"蓝月亮","en":"Blue Moon","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"月牙状柠檬皮","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"比特储斯紫罗兰利口酒","a":"15ml"},{"n":"黄柠檬汁","a":"15ml"}],"premixes":[],"note":"月牙装饰直接浮在酒液表面","py":"lyl","pyf":"lanyueliang","enlow":"blue moon"},{"id":"r217","zh":"瓦伦西亚","en":"Valencia","cat":"经典","method":"shake","glass":"尼克诺拉杯","garnish":"橙皮","ice":"无冰块","ingredients":[{"n":"比特储斯黄杏利口酒","a":"45ml"},{"n":"橙汁","a":"90ml"},{"n":"橙味苦精（可选）","a":"3dash"}],"premixes":[],"note":"要自己调整橙子酸甜，可以适量加柠檬汁增酸","py":"wlxy","pyf":"walunxiya","enlow":"valencia"},{"id":"r218","zh":"脏马天尼","en":"Dirty Martini","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"橄榄","ice":"无冰块","ingredients":[{"n":"干金酒","a":"60ml"},{"n":"干味美思","a":"10ml"},{"n":"橄榄汁","a":"5ml"}],"premixes":[],"note":"","py":"zmtn","pyf":"zangmatianni","enlow":"dirty martini"},{"id":"r219","zh":"雪莉库博勒","en":"Sherry Cobble","cat":"经典","method":"shake","glass":"红酒杯","garnish":"","ice":"碎冰","ingredients":[{"n":"Fino雪利酒","a":"90ml"},{"n":"1:1糖浆","a":"20ml"},{"n":"橙子片","a":"2片"},{"n":"柠檬片","a":"1片"},{"n":"薄荷（可选）","a":"6片"},{"n":"树莓（可选）","a":"3颗"}],"premixes":[],"note":"所有材料混合，加入碎冰摇合之后直接倒入杯子。","py":"xlkbl","pyf":"xuelikubolei","enlow":"sherry cobble"},{"id":"r220","zh":"阿多尼斯","en":"Adonis","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"橙皮","ice":"无冰块","ingredients":[{"n":"Fino干雪利酒","a":"60ml"},{"n":"甜味美思","a":"30ml"},{"n":"橙味苦精","a":"2dash"}],"premixes":[],"note":"","py":"adns","pyf":"aduonisi","enlow":"adonis"},{"id":"r221","zh":"村雨","en":"Murasame","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"烧酒（大伊雅美）","a":"50ml"},{"n":"杜林标","a":"15ml"},{"n":"黄柠檬汁","a":"8ml"}],"premixes":[],"note":"","py":"cy","pyf":"cunyu","enlow":"murasame"},{"id":"r222","zh":"沙后-叶卡捷琳娜","en":"Czarina","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"伏特加","a":"60ml"},{"n":"味美思","a":"15ml"},{"n":"比特储斯黄杏","a":"15ml"}],"premixes":[],"note":"","py":"sh-ykjln","pyf":"shahou-yekajielinna","enlow":"czarina"},{"id":"r223","zh":"金Ricky","en":"Gin Ricky","cat":"经典","method":"build","glass":"柯林杯","garnish":"青柠角","ice":"摇冰","ingredients":[{"n":"金酒","a":"45ml"},{"n":"青柠汁","a":"10ml"},{"n":"苏打水","a":"120ml"}],"premixes":[],"note":"","py":"jRicky","pyf":"jinricky","enlow":"gin ricky"},{"id":"r224","zh":"肉钩子","en":"Meat hook","cat":"经典","method":"stir","glass":"Coupe杯","garnish":"","ice":"无冰块","ingredients":[{"n":"瑞顿房黑麦威士忌","a":"35ml"},{"n":"拉弗格1/4桶","a":"20ml"},{"n":"路萨朵黑樱桃利口酒","a":"10ml"},{"n":"潘脱蜜","a":"10ml"},{"n":"阿贝10年","a":"5ml"}],"premixes":[],"note":"阿贝10年 5ml 为最后淋面（float），出品时淋在表面，不要直接混入摇匀。","py":"rgz","pyf":"rougouzi","enlow":"meat hook"},{"id":"r225","zh":"一脱成名","en":"Naked and Famous","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"Mezcal 梅斯卡尔","a":"20ml"},{"n":"Yellow Chartreuse 查特黄","a":"20ml"},{"n":"Aperol 阿佩罗","a":"20ml"},{"n":"青柠汁","a":"20ml"}],"premixes":[],"note":"","py":"ytcm","pyf":"yituochengming","enlow":"naked and famous"},{"id":"r226","zh":"热红酒","en":"Mulled Wine","cat":"经典","method":"","glass":"","garnish":"","ice":"","ingredients":[{"n":"红酒","a":"一整瓶"},{"n":"君度","a":"75ml"},{"n":"黄柠檬汁","a":"100ml"},{"n":"红枣糖浆","a":"75ml"},{"n":"橙汁","a":"150ml"},{"n":"火龙肉桂","a":"75ml"}],"premixes":[],"note":"","py":"rhj","pyf":"rehongjiu","enlow":"mulled wine"},{"id":"r227","zh":"神风","en":"Kamikaze","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"伏特加","a":"30ml"},{"n":"君度","a":"15ml"},{"n":"青柠汁","a":"15ml"}],"premixes":[],"note":"","py":"sf","pyf":"shenfeng","enlow":"kamikaze"},{"id":"r228","zh":"M-30 雨","en":"M-30 Rain","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"伏特加","a":"40ml"},{"n":"西柚利口酒","a":"10ml"},{"n":"青柠汁","a":"10ml"},{"n":"蓝橙利口酒","a":"5ml"}],"premixes":[],"note":"上田和男为坂本龙一《末代皇帝》配乐第 30 首 Rain 创作。","py":"M-30 y","pyf":"m-30 yu","enlow":"m-30 rain"},{"id":"r229","zh":"亚历山大","en":"Alexander","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"肉豆蔻","ice":"无冰块","ingredients":[{"n":"干邑","a":"30ml"},{"n":"白可可利口酒","a":"30ml"},{"n":"淡奶油","a":"30ml"}],"premixes":[],"note":"","py":"ylsd","pyf":"yalishanda","enlow":"alexander"},{"id":"r230","zh":"床笫之间","en":"Between the Sheets","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"干邑","a":"25ml"},{"n":"朗姆酒","a":"25ml"},{"n":"皮埃尔费朗干库拉索","a":"25ml"},{"n":"黄柠檬汁","a":"20ml"}],"premixes":[],"note":"","py":"czzj","pyf":"chuangzizhijian","enlow":"between the sheets"},{"id":"r231","zh":"史丁格","en":"Stinger","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"干邑","a":"60ml"},{"n":"白薄荷利口酒","a":"20ml"}],"premixes":[],"note":"","py":"sdg","pyf":"shidingge","enlow":"stinger"},{"id":"r232","zh":"波特菲利普","en":"Port Flip","cat":"经典","method":"shake","glass":"葡萄酒杯","garnish":"肉豆蔻","ice":"无冰块","ingredients":[{"n":"波特酒","a":"50ml"},{"n":"干邑","a":"10ml"},{"n":"蛋黄","a":"1 个"},{"n":"1:1糖浆","a":"10ml"}],"premixes":[],"note":"先干摇打发蛋黄，再加冰摇匀。","py":"btflp","pyf":"botefeilipu","enlow":"port flip"},{"id":"r233","zh":"天使之颜","en":"Angel Face","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"30ml"},{"n":"黄杏利口酒","a":"30ml"},{"n":"苹果白兰地","a":"30ml"}],"premixes":[],"note":"","py":"tszy","pyf":"tianshizhiyan","enlow":"angel face"},{"id":"r234","zh":"燕尾服","en":"Tuxedo","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"30ml"},{"n":"白味美思","a":"30ml"},{"n":"黑樱桃利口酒","a":"5ml"},{"n":"橙味苦精","a":"1dash"},{"n":"苦艾酒","a":"1dash"}],"premixes":[],"note":"","py":"ywf","pyf":"yanweifu","enlow":"tuxedo"},{"id":"r235","zh":"粉红佳人","en":"Pink Lady","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"黄柠檬汁","a":"20ml"},{"n":"红石榴糖浆","a":"15ml"},{"n":"蛋清","a":"15ml"}],"premixes":[],"note":"","py":"fhjr","pyf":"fenhongjiaren","enlow":"pink lady"},{"id":"r236","zh":"天堂","en":"Paradise","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"35ml"},{"n":"黄杏利口酒","a":"25ml"},{"n":"橙汁","a":"25ml"},{"n":"橙味苦精","a":"1dash"}],"premixes":[],"note":"","py":"tt","pyf":"tiantang","enlow":"paradise"},{"id":"r237","zh":"德比","en":"Derby","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"60ml"},{"n":"薄荷利口酒","a":"10ml"},{"n":"佩乔苦精","a":"2dash"},{"n":"橙味苦精","a":"2dash"}],"premixes":[],"note":"","py":"db","pyf":"debi","enlow":"derby"},{"id":"r238","zh":"海明威特调","en":"Hemingway Special","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"白朗姆","a":"60ml"},{"n":"黑樱桃利口酒","a":"40ml"},{"n":"西柚汁","a":"30ml"},{"n":"青柠汁","a":"15ml"},{"n":"1:1糖浆","a":"10ml"}],"premixes":[],"note":"","py":"hmwtd","pyf":"haimingweitediao","enlow":"hemingway special"},{"id":"r239","zh":"佩古俱乐部","en":"Pegu Club","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"60ml"},{"n":"君度","a":"20ml"},{"n":"青柠汁","a":"20ml"},{"n":"安高天娜苦精","a":"1dash"},{"n":"橙味苦精","a":"1dash"}],"premixes":[],"note":"","py":"pgjlb","pyf":"peigujulebu","enlow":"pegu club"},{"id":"r240","zh":"二十世纪","en":"20th Century","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"白可可利口酒","a":"22ml"},{"n":"白味美思","a":"22ml"},{"n":"黄柠檬汁","a":"22ml"}],"premixes":[],"note":"","py":"essj","pyf":"ershishiji","enlow":"20th century"},{"id":"r241","zh":"赌场","en":"Casino","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"黑樱桃利口酒","a":"15ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"橙味苦精","a":"1dash"}],"premixes":[],"note":"","py":"dc","pyf":"duchang","enlow":"casino"},{"id":"r242","zh":"自由古巴","en":"Cuba Libre","cat":"经典","method":"build","glass":"高球杯","garnish":"青柠角","ice":"","ingredients":[{"n":"白朗姆","a":"50ml"},{"n":"可乐","a":"120ml"},{"n":"青柠汁","a":"10ml"}],"premixes":[],"note":"","py":"zygb","pyf":"ziyouguba","enlow":"cuba libre"},{"id":"r243","zh":"百加得","en":"Bacardi","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"百加得朗姆","a":"45ml"},{"n":"青柠汁","a":"20ml"},{"n":"红石榴糖浆","a":"10ml"}],"premixes":[],"note":"","py":"bjd","pyf":"baijiade","enlow":"bacardi"},{"id":"r244","zh":"种植者潘趣","en":"Planter's Punch","cat":"经典","method":"shake","glass":"柯林杯","garnish":"","ice":"摇冰","ingredients":[{"n":"黑朗姆","a":"60ml"},{"n":"青柠汁","a":"30ml"},{"n":"橙汁","a":"30ml"},{"n":"菠萝汁","a":"30ml"},{"n":"红石榴糖浆","a":"15ml"},{"n":"安高天娜苦精","a":"2dash"}],"premixes":[],"note":"","py":"zzzpq","pyf":"zhongzhizhepanqu","enlow":"planter's punch"},{"id":"r245","zh":"黄鸟","en":"Yellow Bird","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"白朗姆","a":"30ml"},{"n":"加力安奴","a":"20ml"},{"n":"君度","a":"20ml"},{"n":"青柠汁","a":"15ml"}],"premixes":[],"note":"","py":"hn","pyf":"huangniao","enlow":"yellow bird"},{"id":"r246","zh":"玛丽·碧克馥","en":"Mary Pickford","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"白朗姆","a":"60ml"},{"n":"菠萝汁","a":"60ml"},{"n":"黑樱桃利口酒","a":"5ml"},{"n":"红石榴糖浆","a":"5ml"}],"premixes":[],"note":"","py":"ml·bkf","pyf":"mali·bikefu","enlow":"mary pickford"},{"id":"r247","zh":"止痛药","en":"Painkiller","cat":"经典","method":"shake","glass":"柯林杯","garnish":"肉豆蔻","ice":"摇冰","ingredients":[{"n":"朗姆酒","a":"60ml"},{"n":"菠萝汁","a":"120ml"},{"n":"橙汁","a":"60ml"},{"n":"水妈妈椰浆","a":"30ml"}],"premixes":[],"note":"","py":"zty","pyf":"zhitongyao","enlow":"painkiller"},{"id":"r248","zh":"热黄油朗姆","en":"Hot Buttered Rum","cat":"经典","method":"build","glass":"马克杯","garnish":"肉桂","ice":"","ingredients":[{"n":"朗姆酒","a":"45ml"},{"n":"黄油","a":"15g"},{"n":"红糖","a":"15ml"},{"n":"热水","a":"150ml"}],"premixes":[],"note":"热水冲调，黄油浮面，肉桂装饰。","py":"rhylm","pyf":"rehuangyoulangmu","enlow":"hot buttered rum"},{"id":"r249","zh":"螺丝刀","en":"Screwdriver","cat":"经典","method":"build","glass":"高球杯","garnish":"橙角","ice":"","ingredients":[{"n":"伏特加","a":"50ml"},{"n":"橙汁","a":"100ml"}],"premixes":[],"note":"","py":"lsd","pyf":"luosidao","enlow":"screwdriver"},{"id":"r250","zh":"爱尔兰咖啡","en":"Irish Coffee","cat":"经典","method":"build","glass":"爱尔兰咖啡杯","garnish":"","ice":"","ingredients":[{"n":"爱尔兰威士忌","a":"40ml"},{"n":"热咖啡","a":"120ml"},{"n":"红糖","a":"15ml"},{"n":"淡奶油","a":"30ml"}],"premixes":[],"note":"红糖搅拌溶化后，淡奶油浮面不搅拌。","py":"aelkf","pyf":"aierlankafei","enlow":"irish coffee"},{"id":"r251","zh":"红鲷鱼","en":"Red Snapper","cat":"经典","method":"build","glass":"高球杯","garnish":"","ice":"","ingredients":[{"n":"金酒","a":"50ml"},{"n":"番茄汁","a":"100ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"李派林喼汁","a":"2dash"},{"n":"辣椒仔","a":"1dash"}],"premixes":[],"note":"","py":"hdy","pyf":"hongdiaoyu","enlow":"red snapper"},{"id":"r252","zh":"凯皮洛斯卡","en":"Caipiroska","cat":"经典","method":"smash","glass":"古典杯","garnish":"","ice":"碎冰","ingredients":[{"n":"伏特加","a":"60ml"},{"n":"青柠檬","a":"半个"},{"n":"糖","a":"2 吧勺"}],"premixes":[],"note":"青柠檬切块与糖捣出汁，加碎冰和伏特加。","py":"kplsk","pyf":"kaipiluosika","enlow":"caipiroska"},{"id":"r253","zh":"艳星马天尼","en":"Porn Star Martini","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"百香果","ice":"无冰块","ingredients":[{"n":"伏特加","a":"30ml"},{"n":"百香果果茸","a":"30ml"},{"n":"香草糖浆","a":"15ml"},{"n":"青柠汁","a":"15ml"},{"n":"香槟","a":"60ml"}],"premixes":[],"note":"香槟单独小杯随附。","py":"yxmtn","pyf":"yanxingmatianni","enlow":"porn star martini"},{"id":"r254","zh":"海湾微风","en":"Bay Breeze","cat":"经典","method":"build","glass":"高球杯","garnish":"","ice":"","ingredients":[{"n":"伏特加","a":"40ml"},{"n":"蔓越莓汁","a":"120ml"},{"n":"菠萝汁","a":"40ml"}],"premixes":[],"note":"","py":"hwwf","pyf":"haiwanweifeng","enlow":"bay breeze"},{"id":"r255","zh":"灰狗","en":"Greyhound","cat":"经典","method":"build","glass":"高球杯","garnish":"","ice":"","ingredients":[{"n":"伏特加","a":"40ml"},{"n":"西柚汁","a":"120ml"}],"premixes":[],"note":"","py":"hg","pyf":"huigou","enlow":"greyhound"},{"id":"r256","zh":"咸狗","en":"Salty Dog","cat":"经典","method":"build","glass":"古典杯","garnish":"盐边","ice":"方冰","ingredients":[{"n":"伏特加","a":"40ml"},{"n":"西柚汁","a":"120ml"}],"premixes":[],"note":"杯口沾盐。","py":"xg","pyf":"xiangou","enlow":"salty dog"},{"id":"r257","zh":"教父","en":"God Father","cat":"经典","method":"stir","glass":"古典杯","garnish":"","ice":"方冰","ingredients":[{"n":"苏格兰威士忌","a":"45ml"},{"n":"杏仁利口酒","a":"15ml"}],"premixes":[],"note":"","py":"jf","pyf":"jiaofu","enlow":"god father"},{"id":"r258","zh":"教母","en":"God Mother","cat":"经典","method":"stir","glass":"古典杯","garnish":"","ice":"方冰","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"杏仁利口酒","a":"15ml"}],"premixes":[],"note":"","py":"jm","pyf":"jiaomu","enlow":"god mother"},{"id":"r259","zh":"纽约酸","en":"New York Sour","cat":"经典","method":"shake","glass":"古典杯","garnish":"","ice":"方冰","ingredients":[{"n":"波本威士忌","a":"60ml"},{"n":"黄柠檬汁","a":"30ml"},{"n":"1:1糖浆","a":"15ml"},{"n":"红葡萄酒","a":"15ml"}],"premixes":[],"note":"红葡萄酒最后浮面。","py":"nys","pyf":"niuyuesuan","enlow":"new york sour"},{"id":"r260","zh":"老朋友","en":"Old Pal","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"黑麦威士忌","a":"30ml"},{"n":"干味美思","a":"30ml"},{"n":"金巴利","a":"30ml"}],"premixes":[],"note":"","py":"lpy","pyf":"laopengyou","enlow":"old pal"},{"id":"r261","zh":"布鲁克林","en":"Brooklyn","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"黑麦威士忌","a":"45ml"},{"n":"干味美思","a":"30ml"},{"n":"黑樱桃利口酒","a":"5ml"},{"n":"Amer Picon","a":"7.5ml"}],"premixes":[],"note":"原版配方为 2 dash Amer Picon（按 amaro 用量调整为 7.5ml）。","py":"blkl","pyf":"bulukelin","enlow":"brooklyn"},{"id":"r262","zh":"香槟鸡尾酒","en":"Champagne Cocktail","cat":"经典","method":"build","glass":"香槟杯","garnish":"橙皮","ice":"","ingredients":[{"n":"香槟","a":"150ml"},{"n":"干邑","a":"10ml"},{"n":"方糖","a":"1 块"},{"n":"安高天娜苦精","a":"2dash"}],"premixes":[],"note":"苦精滴在方糖上放入杯底。","py":"xbjwj","pyf":"xiangbinjiweijiu","enlow":"champagne cocktail"},{"id":"r263","zh":"含羞草","en":"Mimosa","cat":"经典","method":"build","glass":"香槟杯","garnish":"","ice":"","ingredients":[{"n":"香槟","a":"75ml"},{"n":"橙汁","a":"75ml"}],"premixes":[],"note":"","py":"hxc","pyf":"hanxiucao","enlow":"mimosa"},{"id":"r264","zh":"午后之死","en":"Death in the Afternoon","cat":"经典","method":"build","glass":"香槟杯","garnish":"","ice":"","ingredients":[{"n":"苦艾酒","a":"30ml"},{"n":"香槟","a":"120ml"}],"premixes":[],"note":"","py":"whzs","pyf":"wuhouzhisi","enlow":"death in the afternoon"},{"id":"r265","zh":"B-52","en":"B-52","cat":"经典","method":"build","glass":"利口酒杯","garnish":"","ice":"无冰块","ingredients":[{"n":"甘露咖啡利口酒","a":"20ml"},{"n":"百利甜","a":"20ml"},{"n":"柑曼怡","a":"20ml"}],"premixes":[],"note":"依次缓慢倒入分层（甘露→百利甜→柑曼怡）。","py":"B-52","pyf":"b-52","enlow":"b-52"},{"id":"r266","zh":"蓝色泻湖","en":"Blue Lagoon","cat":"经典","method":"build","glass":"高球杯","garnish":"","ice":"","ingredients":[{"n":"伏特加","a":"30ml"},{"n":"蓝橙利口酒","a":"20ml"},{"n":"黄柠檬汁","a":"30ml"},{"n":"苏打水","a":"90ml"}],"premixes":[],"note":"","py":"lsxh","pyf":"lansexiehu","enlow":"blue lagoon"},{"id":"r267","zh":"巧克力马天尼","en":"Chocolate Martini","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"白可可利口酒","a":"30ml"},{"n":"黑可可利口酒","a":"15ml"},{"n":"淡奶油","a":"15ml"}],"premixes":[],"note":"","py":"qklmtn","pyf":"qiaokelimatianni","enlow":"chocolate martini"},{"id":"r268","zh":"天使之吻","en":"Angel's Tit","cat":"经典","method":"build","glass":"利口酒杯","garnish":"红樱桃","ice":"无冰块","ingredients":[{"n":"黑可可利口酒","a":"30ml"},{"n":"淡奶油","a":"15ml"}],"premixes":[],"note":"淡奶油浮面，点缀红樱桃。","py":"tszw","pyf":"tianshizhiwen","enlow":"angel's tit"},{"id":"r269","zh":"香蕉女妖","en":"Banana Banshee","cat":"经典","method":"blended","glass":"高球杯","garnish":"","ice":"","ingredients":[{"n":"香蕉利口酒","a":"30ml"},{"n":"白可可利口酒","a":"30ml"},{"n":"淡奶油","a":"30ml"}],"premixes":[],"note":"","py":"xjny","pyf":"xiangjiaonvyao","enlow":"banana banshee"},{"id":"r270","zh":"芝加哥","en":"Chicago","cat":"经典","method":"stir","glass":"香槟杯","garnish":"","ice":"","ingredients":[{"n":"干邑","a":"30ml"},{"n":"君度","a":"15ml"},{"n":"安高天娜苦精","a":"1dash"},{"n":"香槟","a":"60ml"}],"premixes":[],"note":"搅拌后倒入香槟。","py":"zjg","pyf":"zhijiage","enlow":"chicago"},{"id":"r271","zh":"火烈鸟","en":"Flamingo","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"白朗姆","a":"30ml"},{"n":"蔓越莓汁","a":"45ml"},{"n":"红石榴糖浆","a":"15ml"},{"n":"青柠汁","a":"15ml"}],"premixes":[],"note":"","py":"hln","pyf":"huolieniao","enlow":"flamingo"},{"id":"r272","zh":"弗雷迪·福德帕克","en":"Freddy Fudpucker","cat":"经典","method":"build","glass":"高球杯","garnish":"","ice":"","ingredients":[{"n":"龙舌兰","a":"30ml"},{"n":"橙汁","a":"60ml"},{"n":"加力安奴","a":"15ml"}],"premixes":[],"note":"加力安奴浮面。","py":"fld·fdpk","pyf":"fuleidi·fudepake","enlow":"freddy fudpucker"},{"id":"r273","zh":"烟熏马天尼","en":"Smoky Martini","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"金酒","a":"60ml"},{"n":"干味美思","a":"10ml"},{"n":"艾雷迷雾烟熏威士忌","a":"5ml"}],"premixes":[],"note":"艾雷威士忌润杯倒出后调制。","py":"yxmtn","pyf":"yanxunmatianni","enlow":"smoky martini"},{"id":"r274","zh":"瓦哈卡古典","en":"Oaxaca Old Fashioned","cat":"经典","method":"stir","glass":"古典杯","garnish":"橙皮","ice":"方冰","ingredients":[{"n":"梅斯卡尔","a":"45ml"},{"n":"龙舌兰","a":"15ml"},{"n":"龙舌兰糖浆","a":"10ml"},{"n":"安高天娜苦精","a":"2dash"}],"premixes":[],"note":"","py":"whkgd","pyf":"wahakagudian","enlow":"oaxaca old fashioned"},{"id":"r275","zh":"梅斯卡尔尼格罗尼","en":"Mezcal Negroni","cat":"经典","method":"stir","glass":"古典杯","garnish":"橙皮","ice":"方冰","ingredients":[{"n":"梅斯卡尔","a":"30ml"},{"n":"红味美思","a":"30ml"},{"n":"金巴利","a":"30ml"}],"premixes":[],"note":"","py":"mskengln","pyf":"meisikaernigeluoni","enlow":"mezcal negroni"},{"id":"r276","zh":"吸血鬼","en":"Vampiro","cat":"经典","method":"build","glass":"高球杯","garnish":"","ice":"","ingredients":[{"n":"龙舌兰","a":"60ml"},{"n":"番茄汁","a":"90ml"},{"n":"橙汁","a":"30ml"},{"n":"青柠汁","a":"15ml"},{"n":"3:1蜂蜜糖浆","a":"10ml"},{"n":"辣椒仔","a":"1dash"}],"premixes":[],"note":"","py":"xxg","pyf":"xixuegui","enlow":"vampiro"},{"id":"r277","zh":"坎塔里托","en":"Cantarito","cat":"经典","method":"build","glass":"陶杯","garnish":"","ice":"","ingredients":[{"n":"龙舌兰","a":"45ml"},{"n":"橙汁","a":"60ml"},{"n":"西柚汁","a":"60ml"},{"n":"青柠汁","a":"30ml"},{"n":"苏打水","a":"30ml"}],"premixes":[],"note":"","py":"ktlt","pyf":"kantalituo","enlow":"cantarito"},{"id":"r278","zh":"约翰柯林斯","en":"John Collins","cat":"经典","method":"build","glass":"柯林杯","garnish":"橙皮","ice":"摇冰","ingredients":[{"n":"金酒","a":"45ml"},{"n":"黄柠檬汁","a":"30ml"},{"n":"1:1糖浆","a":"20ml"},{"n":"苏打水","a":"90ml"}],"premixes":[],"note":"","py":"yhkls","pyf":"yuehankelinsi","enlow":"john collins"},{"id":"r279","zh":"皮姆杯","en":"Pimm's Cup","cat":"经典","method":"build","glass":"高球杯","garnish":"黄瓜片","ice":"摇冰","ingredients":[{"n":"飘仙一号","a":"50ml"},{"n":"干姜水","a":"100ml"}],"premixes":[],"note":"","py":"pmb","pyf":"pimubei","enlow":"pimm's cup"},{"id":"r280","zh":"基尔","en":"Kir","cat":"经典","method":"build","glass":"酒杯","garnish":"","ice":"","ingredients":[{"n":"白葡萄酒","a":"90ml"},{"n":"黑加仑利口酒","a":"15ml"}],"premixes":[],"note":"","py":"je","pyf":"jier","enlow":"kir"},{"id":"r281","zh":"皇家基尔","en":"Kir Royale","cat":"经典","method":"build","glass":"香槟杯","garnish":"","ice":"","ingredients":[{"n":"香槟","a":"90ml"},{"n":"黑加仑利口酒","a":"15ml"}],"premixes":[],"note":"","py":"hjje","pyf":"huangjiajier","enlow":"kir royale"},{"id":"r282","zh":"查理·卓别林","en":"Charlie Chaplin","cat":"经典","method":"shake","glass":"coupe 杯","garnish":"","ice":"无冰块","ingredients":[{"n":"黑刺李金酒","a":"45ml"},{"n":"比特储斯黄杏利口酒","a":"30ml"},{"n":"新鲜柠檬汁","a":"25ml"}],"premixes":[],"note":"","py":"cl·zbl","pyf":"chali·zhuobielin","enlow":"charlie chaplin"},{"id":"r283","zh":"龙舌兰日出","en":"Tequila Sunrise","cat":"经典","method":"build","glass":"高球杯","garnish":"橙片+樱桃","ice":"","ingredients":[{"n":"唐胡里奥白龙舌兰","a":"45ml"},{"n":"橙汁","a":"90ml"},{"n":"红石榴糖浆","a":"15ml"}],"premixes":[],"note":"红石榴糖浆沿杯壁沉底形成渐变，出品时轻轻搅一下。","py":"lslrc","pyf":"longshelanrichu","enlow":"tequila sunrise"},{"id":"r284","zh":"飓风","en":"Hurricane","cat":"经典","method":"shake","glass":"飓风杯","garnish":"橙片+樱桃","ice":"碎冰","ingredients":[{"n":"黑朗姆酒","a":"60ml"},{"n":"白朗姆酒","a":"60ml"},{"n":"百香果糖浆","a":"30ml"},{"n":"青柠汁","a":"30ml"},{"n":"橙汁","a":"60ml"},{"n":"红石榴糖浆","a":"15ml"}],"premixes":[],"note":"新奥尔良经典，也可用百香果果茸 45ml 代替百香果糖浆。","py":"jf","pyf":"jufeng","enlow":"hurricane"},{"id":"r285","zh":"吉布森","en":"Gibson","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"珍珠洋葱","ice":"无冰块","ingredients":[{"n":"金酒","a":"60ml"},{"n":"干味美思","a":"10ml"}],"premixes":[],"note":"即马天尼变体，装饰用珍珠洋葱（cocktail onion）。","py":"jbs","pyf":"jibusen","enlow":"gibson"},{"id":"r286","zh":"金酒罗勒碎","en":"Gin Basil Smash","cat":"经典","method":"shake","glass":"古典杯","garnish":"罗勒叶","ice":"方冰","ingredients":[{"n":"金酒","a":"60ml"},{"n":"罗勒叶","a":"8片"},{"n":"黄柠檬汁","a":"25ml"},{"n":"1:1糖浆","a":"20ml"}],"premixes":[],"note":"罗勒叶与糖浆先捣碎再摇，2008 年德国汉堡 Le Lion 酒吧创作。","py":"jjlls","pyf":"jinjiuluolesui","enlow":"gin basil smash"},{"id":"r287","zh":"南边","en":"Southside","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"薄荷叶","ice":"无冰块","ingredients":[{"n":"金酒","a":"60ml"},{"n":"黄柠檬汁","a":"25ml"},{"n":"1:1糖浆","a":"20ml"},{"n":"薄荷叶","a":"6片"}],"premixes":[],"note":"禁酒令时期芝加哥南区流行，金酒版莫吉托。","py":"nb","pyf":"nanbian","enlow":"southside"},{"id":"r288","zh":"东区","en":"Eastside","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"黄瓜片","ice":"无冰块","ingredients":[{"n":"金酒","a":"60ml"},{"n":"黄瓜条","a":"3片"},{"n":"薄荷叶","a":"6片"},{"n":"黄柠檬汁","a":"25ml"},{"n":"1:1糖浆","a":"20ml"}],"premixes":[],"note":"南边的现代变体，加黄瓜更清爽。","py":"dq","pyf":"dongqu","enlow":"eastside"},{"id":"r289","zh":"老古巴","en":"Old Cuban","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"薄荷叶","ice":"无冰块","ingredients":[{"n":"陈年朗姆酒","a":"45ml"},{"n":"薄荷叶","a":"6片"},{"n":"1:1糖浆","a":"20ml"},{"n":"青柠汁","a":"20ml"},{"n":"安高天娜苦精","a":"2dash"},{"n":"干香槟","a":"30ml"}],"premixes":[],"note":"2001 年 Audrey Saunders 创作，莫吉托×法式75，香槟最后补入。","py":"lgb","pyf":"laoguba","enlow":"old cuban"},{"id":"r290","zh":"桑格利亚","en":"Sangria","cat":"经典","method":"build","glass":"红酒杯","garnish":"橙片+苹果片","ice":"冰块","ingredients":[{"n":"红酒","a":"150ml"},{"n":"橙汁","a":"30ml"},{"n":"君度","a":"15ml"},{"n":"苹果片","a":"3片"},{"n":"苏打水","a":"30ml"}],"premixes":[],"note":"西班牙国民饮品，水果可自由搭配，提前浸泡风味更佳。","py":"sgly","pyf":"sanggeliya","enlow":"sangria"},{"id":"r291","zh":"绿点","en":"Greenpoint","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"柠檬皮","ice":"无冰块","ingredients":[{"n":"黑麦威士忌","a":"60ml"},{"n":"查特黄","a":"15ml"},{"n":"黑樱桃利口酒","a":"15ml"},{"n":"橙味苦精","a":"2dash"}],"premixes":[],"note":"布鲁克林的现代变体（黄查特替代干味美思）。","py":"ld","pyf":"lvdian","enlow":"greenpoint"},{"id":"r292","zh":"热托迪","en":"Hot Toddy","cat":"经典","method":"build","glass":"马克杯","garnish":"柠檬片+丁香","ice":"","ingredients":[{"n":"威士忌","a":"45ml"},{"n":"3:1蜂蜜糖浆","a":"15ml"},{"n":"黄柠檬汁","a":"15ml"},{"n":"热水","a":"120ml"},{"n":"丁香","a":"2颗"}],"premixes":[],"note":"冬季暖身经典，威士忌可换朗姆/白兰地。","py":"rtd","pyf":"retuodi","enlow":"hot toddy"},{"id":"r293","zh":"海风","en":"Sea Breeze","cat":"经典","method":"build","glass":"高球杯","garnish":"西柚角","ice":"摇冰","ingredients":[{"n":"伏特加","a":"45ml"},{"n":"西柚汁","a":"60ml"},{"n":"蔓越莓汁","a":"45ml"}],"premixes":[],"note":"1980s 流行的伏特加果汁鸡尾酒。","py":"hf","pyf":"haifeng","enlow":"sea breeze"},{"id":"r294","zh":"早餐马天尼","en":"Breakfast Martini","cat":"经典","method":"shake","glass":"马天尼杯","garnish":"橙皮","ice":"无冰块","ingredients":[{"n":"金酒","a":"45ml"},{"n":"橙子果酱","a":"1吧勺"},{"n":"君度","a":"15ml"},{"n":"黄柠檬汁","a":"20ml"}],"premixes":[],"note":"2005 年 Salvatore Calabrese 创作，果酱摇匀后双滤。","py":"zcmtn","pyf":"zaocanmatianni","enlow":"breakfast martini"},{"id":"r296","zh":"秋菊","en":"Chrysanthemum","cat":"经典","method":"stir","glass":"马天尼杯","garnish":"","ice":"无冰块","ingredients":[{"n":"园林干味美思","a":"60ml"},{"n":"当酒","a":"25ml"},{"n":"芳泉苦艾酒","a":"2.5ml"}],"premixes":[],"note":"","py":"qj","pyf":"qiuju","enlow":"chrysanthemum"}];
+
+const LS = {custom:"bk_custom_v1", edits:"bk_edits_v1", del:"bk_del_v1", favs:"bk_favs_v1", synced:"bk_synced_v1"};
+const store = {
+  // 本地存储可用性：部分内嵌环境（被 iframe 沙箱承载）会直接禁掉 localStorage，
+  // 这里做一次探测，避免"点了保存却没存上"却毫无提示。
+  ok: null,
+  usable(){
+    if(this.ok!==null) return this.ok;
+    try{ localStorage.setItem("__probe__","1"); localStorage.removeItem("__probe__"); this.ok=true; }
+    catch(e){ this.ok=false; }
+    return this.ok;
+  },
+  load(k, d){ try{ const v = localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch(e){ return d; } },
+  save(k, v){
+    try{ localStorage.setItem(k, JSON.stringify(v)); this.ok=true; }
+    catch(e){
+      this.ok=false;
+      if(!this._warned){ this._warned=true; toast("当前打开方式无法保存改动，本次修改仅在本次使用期间有效"); }
+    }
+  },
+  clear(){ try{ Object.values(LS).forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+};
+let custom = store.load(LS.custom, []);     // 用户新增
+let edits  = store.load(LS.edits, {});      // 对内置配方的修改
+let del    = store.load(LS.del, []);        // 被删除的内置配方 id
+let favs   = store.load(LS.favs, []);       // 收藏 id
+
+/* 自配配方的本地 id。
+   载入别人的配方码时，对方码里可能没带 id（精简时会剔掉），也可能跟内置库撞号；
+   没有 id 的配方照样能在列表里显示，但一点开 #/detail/undefined 就查不到 → 直接退回首页。
+   所以载入时一律补齐，并且顺手修好手机里已经存坏了的老数据。 */
+function newLocalId(){
+  return "c" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+/* id 会进 DOM 属性和 location.hash，必须是安全字符；外来配方码里的 id 一律先校验 */
+function validId(id){
+  return typeof id === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(id);
+}
+function repairCustomIds(){
+  if(!Array.isArray(custom)) custom = [];
+  const builtinIds = new Set(DEFAULT_RECIPES.map(r=>r.id));
+  const seen = new Set();
+  let changed = false;
+  custom = custom.filter(c=>c && typeof c === "object");
+  custom.forEach(c=>{
+    if(!validId(c.id) || builtinIds.has(c.id) || seen.has(c.id)){ c.id = newLocalId(); changed = true; }
+    seen.add(c.id);
+  });
+  if(changed) store.save(LS.custom, custom);
+  return changed;
+}
+repairCustomIds();
+
+/* 内置库每次新增酒款，后面所有记录的 id 都会整体后移（id 是按位置生成的）。
+   手机里按旧 id 存的编辑快照如果不校正，就会被套到"占了这个 id 的另一杯酒"上。
+   所以载入时按名字对一次账：id 对得上就留着，对不上就按 zh 找到真正那条，实在找不到才丢弃。 */
+function migrateEditIds(){
+  const byIdMap = {}, byZh = {};
+  DEFAULT_RECIPES.forEach(r=>{ byIdMap[r.id]=r; if(r.zh) byZh[r.zh]=r.id; });
+  let changed = false;
+  const fixed = {};
+  Object.keys(edits||{}).forEach(id=>{
+    const e = edits[id] || {};
+    const cur = byIdMap[id];
+    if(cur && (!e.zh || e.zh===cur.zh)){ fixed[id]=e; return; }   // id 与名字都对得上
+    if(e.zh && byZh[e.zh]){                                        // 位移了 → 按名字改挂到正确 id
+      if(byZh[e.zh]!==id) changed = true;
+      fixed[byZh[e.zh]] = e;
+      return;
+    }
+    changed = true;                                                // 库里已无此酒 → 丢弃
+  });
+  if(changed){ edits = fixed; store.save(LS.edits, edits); }
+
+  // 删除列表只存了 id，没有名字可对账，位移后无法可靠还原目标。
+  // 这里只清掉"库里已经不存在的 id"，其余保持原样（宁可留一杯，也不误删一杯）。
+  const validDel = (del||[]).filter(id=>!!byIdMap[id]);
+  if(validDel.length !== (del||[]).length){ del = validDel; store.save(LS.del, del); }
+}
+migrateEditIds();
+
+function merged(){
+  const base = DEFAULT_RECIPES.filter(r=>!del.includes(r.id)).map(r=>edits[r.id]?Object.assign({},r,edits[r.id]):r);
+  // 自配配方若已并入默认数据，不重复显示。
+  // 判断"已并入"不能只看 id：内置库新增酒款后 id 会整体后移，
+  // 手机里的自增副本可能恰好占用了新酒让出来的 id，按 id 判会把真正自配的酒误藏。
+  // 所以改为「id 相同」或「同名且内容一致（空字段不算改动）」才算已并入。
+  const byName = builtinByName();
+  const extra = custom.filter(c=>!DEFAULT_RECIPES.some(d=>d.id===c.id) && !sameAsBuiltin(c, byName[c.zh]));
+  return base.concat(extra);
+}
+function byId(id){ return merged().find(r=>r.id===id); }
+function isBuiltin(id){ return DEFAULT_RECIPES.some(r=>r.id===id); }
+
+/* ================= 工具 ================= */
+const METHOD_LABEL = {shake:"摇和 Shake", stir:"搅拌 Stir", build:"兑和 Build", smash:"捣碎 Smash", rolling:"滚和 Rolling", blended:"搅打 Blended"};
+const norm = s => (s||"").toLowerCase().replace(/[\s'"“”‘’\-—·.&()（）、,:：]/g,"");
+function searchIndex(r){
+  const ing = (r.ingredients||[]).map(i=>i.n).join(" ");
+  // 预调（Premix）里的材料与预调名也要能被搜到：
+  // 例如「回归性原理」的木姜子在 Premix 里，只索引导入配料就会搜不到这杯酒。
+  const pms = (r.premixes||[]).map(p=>
+    [p.name||"", (p.ingredients||[]).map(i=>i.n).join(" ")].join(" ")
+  ).join(" ");
+  return norm([r.zh, r.en, r.py, r.pyf, r.enlow, ing, pms].join(" "));
+}
+/* 标签过滤：多个标签用空格或 # 隔开，需全部命中（AND） */
+function matchTags(r, tokens){
+  if(!tokens.length) return true;
+  const t = norm((r.tags||[]).join(" "));
+  return tokens.every(x=>t.includes(x));
+}
+const $ = id => document.getElementById(id);
+
+/* ================= 路由：返回键/浏览器后退逐级返回 ================= */
+function safeDecode(s){
+  try{ return decodeURIComponent(s); }catch(e){ return s; }
+}
+function parseHash(){
+  const h = location.hash || "#/";
+  if(h.indexOf("#/detail/")===0) return {view:"detail", id: safeDecode(h.slice(9))};
+  if(h.indexOf("#/edit/")===0)   return {view:"edit",   id: safeDecode(h.slice(7))};
+  if(h === "#/new")              return {view:"edit",   id: null};
+  if(h.indexOf("#/settings")===0)return {view:"settings"};
+  return {view:"home"};
+}
+let cur = null, editingId = null;
+
+function route(){
+  const r = parseHash();
+  if(r.view === "home"){
+    renderList();
+    show("view-home");
+  } else if(r.view === "detail"){
+    const rec = byId(r.id);
+    if(!rec){ location.replace("#/"); return; }
+    cur = r.id;
+    renderDetail(rec);
+    show("view-detail");
+  } else if(r.view === "edit"){
+    editingId = r.id;
+    openEditForm(r.id);
+    show("view-edit");
+  } else if(r.view === "settings"){
+    $("aboutCount").textContent = merged().length;
+    show("view-settings");
+  }
+  window.scrollTo(0,0);
+  // 滚动条仅主页显示（单杯/编辑/设置页不需要）
+  const sbEl = $("scrollbar");
+  if(sbEl) sbEl.style.display = (r.view === "home") ? "block" : "none";
+  setTimeout(updateScrollbar, 30);
+}
+function show(name){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  $(name).classList.add("active");
+}
+function goBack(){
+  if(history.length > 1) history.back();
+  else location.hash = "#/";
+}
+
+/* ================= 系统返回键（APK 内逐级返回） =================
+   网页版：浏览器后退键/手势天然走 history → hashchange，无需处理。
+   APK：显式接管 Capacitor 的系统返回键——非首页返回上一级，首页才退出。 */
+function setupNativeBack(){
+  if(!window.Capacitor || !window.Capacitor.isNativePlatform || !window.Capacitor.isNativePlatform()) return;
+  let App = null;
+  try{ App = window.Capacitor.Plugins && window.Capacitor.Plugins.App; }catch(e){}
+  if(!App && window.Capacitor.registerPlugin){ try{ App = window.Capacitor.registerPlugin("App"); }catch(e){} }
+  if(!App || !App.addListener) return;
+  App.addListener("backButton", ()=>{
+    const r = parseHash();
+    if(r.view === "home"){
+      // 搜索状态：先清空搜索回主页，不退出
+      if(query || tagQuery || location.hash.indexOf("#/?q=")===0){ clearSearch(); }
+      else { try{ App.exitApp(); }catch(e){} }
+    }
+    else goBack();
+  });
+}
+
+/* ================= 首页列表 ================= */
+let filter = "all", query = "", tagQuery = "";
+
+/* 搜索词同步进 hash（#/?q=xx）：让系统返回键/浏览器后退能"先清空搜索回主页，再按才退出" */
+function syncSearchHash(){
+  if(parseHash().view !== "home") return;
+  const q = query.trim();
+  const h = location.hash || "";
+  if(q){
+    if(h.indexOf("#/?q=")!==0) history.pushState(null, "", "#/?q="+encodeURIComponent(q));
+    else history.replaceState(null, "", "#/?q="+encodeURIComponent(q));
+  } else if(h.indexOf("#/?q=")===0){
+    history.replaceState(null, "", "#/");
+  }
+}
+function clearSearch(){
+  query = "";
+  tagQuery = "";
+  $("searchInput").value = "";
+  $("tagSearchInput").value = "";
+  renderList();
+  history.replaceState(null, "", "#/");
+}
+
+function renderList(){
+  const nq = norm(query);
+  const ttokens = tagQuery.trim().split(/[\s#]+/).map(norm).filter(Boolean);
+  const searching = !!(nq || ttokens.length);
+  const list = merged().filter(r=>{
+    if(filter==="原创" && r.cat!=="原创") return false;
+    if(filter==="经典" && r.cat!=="经典") return false;
+    if(filter==="fav" && !favs.includes(r.id)) return false;
+    if(nq && !searchIndex(r).includes(nq)) return false;
+    if(!matchTags(r, ttokens)) return false;
+    return true;
+  }).sort((a,b)=>((a.pyf||a.enlow||a.zh)).localeCompare((b.pyf||b.enlow||b.zh)));
+
+  const ul = $("list");
+  ul.innerHTML = "";
+  $("empty").hidden = list.length>0;
+  $("countline").textContent = searching? `找到 ${list.length} 款` : `共 ${merged().length} 款配方`;
+
+  for(const r of list){
+    const li = document.createElement("li");
+    const en = r.en? `<span class="en">${esc(r.en)}</span>` : "";
+    const catBadge = r.cat==="原创"? `<span class="badge orig">原创</span>` : `<span class="badge">经典</span>`;
+    const meth = r.method && METHOD_LABEL[r.method]? `<span class="badge meth">${METHOD_LABEL[r.method]}</span>` : "";
+    const fav = favs.includes(r.id)? "on":"";
+    li.className = "card";
+    li.innerHTML = `
+      <div class="cname"><span class="zh">${esc(r.zh||r.en)}</span>${en}</div>
+      <div class="badges">${catBadge}${meth}<button class="favbtn ${fav}" data-fav="${esc(r.id)}">${fav?"★":"☆"}</button></div>`;
+    li.addEventListener("click", e=>{
+      if(e.target.dataset.fav){ toggleFav(r.id); return; }
+      location.hash = "#/detail/" + encodeURIComponent(r.id);
+    });
+    ul.appendChild(li);
+  }
+}
+function toggleFav(id){
+  const i = favs.indexOf(id);
+  if(i>=0) favs.splice(i,1); else favs.push(id);
+  store.save(LS.favs, favs);
+  renderList();
+}
+
+/* ================= 详情 ================= */
+function renderDetail(r){
+  const en = r.en? `<div class="en">${esc(r.en)}</div>` : "";
+  const meta = [];
+  if(r.cat) meta.push(`<span class="mchip"><b>${r.cat==="原创"?"原创特调":"经典款"}</b></span>`);
+  if(r.method && METHOD_LABEL[r.method]) meta.push(`<span class="mchip"><b>${METHOD_LABEL[r.method]}</b></span>`);
+  if(r.glass) meta.push(`<span class="mchip">杯子 <b>${esc(r.glass)}</b></span>`);
+  if(r.garnish) meta.push(`<span class="mchip">装饰 <b>${esc(r.garnish)}</b></span>`);
+  if(r.ice) meta.push(`<span class="mchip">冰块 <b>${esc(r.ice)}</b></span>`);
+  if(r.tags && r.tags.length) meta.push(`<span class="mchip">标签 <b>${esc(r.tags.join(" · "))}</b></span>`);
+
+  const ings = (r.ingredients||[]).map(i=>`
+    <div class="ingrow"><span class="n">${esc(i.n)}</span><span class="a">${esc(i.a)}</span></div>`).join("");
+
+  const note = r.note? `<div class="section"><h3>做法 · 备注</h3><div class="note">${esc(r.note)}</div></div>` : "";
+
+  const batch = `
+    <div class="section batchcalc">
+      <button type="button" class="batchtoggle" id="batchToggle">批量制作 <span class="arrow">▾</span></button>
+      <div id="batchWrap" class="batchwrap" hidden>
+        <div class="batchbar">做 <input id="batchN" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="10" autocomplete="off"> 份</div>
+        <div class="batchlist" id="batchList"></div>
+      </div>
+    </div>`;
+
+  $("detailBody").innerHTML = `
+    <div class="dname"><div class="zh">${esc(r.zh||r.en)}</div>${en}</div>
+    <div class="dmeta">${meta.join("")}</div>
+    <div class="section"><h3>配方</h3><div class="inglist">${ings||'<div class="ingrow"><span class="n">—</span></div>'}</div></div>
+    ${note}
+    ${batch}`;
+
+  renderBatch(r);
+  $("batchN").addEventListener("input", ()=>{
+    const inp = $("batchN");
+    const clean = inp.value.replace(/[^0-9]/g,"");
+    if(clean !== inp.value) inp.value = clean;   // 只去掉非法字符，不强制补回 1
+    updateBatch();
+  });
+  // 批量制作：默认收起，点击展开/收起
+  $("batchToggle").addEventListener("click", ()=>{
+    const wrap = $("batchWrap");
+    const open = wrap.hidden;
+    wrap.hidden = !open;
+    $("batchToggle").classList.toggle("on", open);
+    $("batchToggle").querySelector(".arrow").textContent = open? "▴" : "▾";
+    if(open) renderBatch(byId(cur));
+  });
+
+  $("btnFav").textContent = favs.includes(r.id)?"★":"☆";
+  $("btnFav").classList.toggle("on", favs.includes(r.id));
+}
+
+/* 批量计算：把单份配料量按份数放大 */
+function trim0(v){
+  const s = String(v);
+  // 只清理小数末尾多余的 0（如 1.50→1.5，2.00→2），不动整数（400 不能变 4）
+  return s.indexOf(".")>=0 ? parseFloat(s).toString() : s;
+}
+function scaleAmount(a, n){
+  a = (a||"").trim();
+  if(!a) return "";
+  const cn = {一甩:0.8,半甩:0.4,两甩:1.6,二甩:1.6,三甩:2.4,四甩:3.2,五甩:4,六甩:4.8,七甩:5.6,八甩:6.4};
+  if(cn[a]!==undefined){ const v=Math.round(cn[a]*n*100)/100; return trim0(v)+"ml"; }
+  // 比例（1:10 盐水、1/10 等）与份数无关，保持原样
+  if(/^\d+(\.\d+)?\s*[:/]\s*\d/.test(a)) return a;
+  // 浓度百分比（2% 果胶酶等）不随份数放大
+  if(/^\d+(\.\d+)?\s*%$/.test(a)) return a;
+  // 数字 + 可选单位/后缀：30ml / 2dash / 1.5/半吧勺 / 2 drop
+  const m = a.match(/^([\d.]+)\s*([A-Za-z]*)\s*(.*)$/);
+  if(m && m[1]){
+    const v = Math.round(parseFloat(m[1])*n*100)/100;
+    return trim0(v) + m[2] + (m[3]||"");
+  }
+  // 整瓶类
+  if(/瓶/.test(a)){ const mm=a.match(/(\d+)/); const c=mm?parseInt(mm[1],10)*n:n; return "×"+c+" 瓶"; }
+  // 适量/少许等：无法计算，保持原样
+  return a;
+}
+/* 累加列表里所有 ml 数值（气泡水除外） */
+function batchMl(list){
+  let total = 0, cnt = 0;
+  (list||[]).forEach(i=>{
+    if(isFizzy(i.n)) return;
+    const m = (i.a||"").trim().match(/^([\d.]+)\s*ml/i);
+    if(m){ total += parseFloat(m[1]); cnt++; }
+  });
+  return {total, cnt};
+}
+const PM_METHOD_LABEL = {sousvide:"低温慢煮",milkwash:"奶洗",fatwash:"油洗",steep:"浸泡",centrifuge:"离心澄清",spin:"旋蒸",freeze:"冷冻澄清"};
+/* 气泡水识别：只能出品时最后加，不参与批量混合 */
+function isFizzy(n){ return /苏打水|汤力水|干姜水|气泡水|可乐/.test(n||""); }
+/* 批量制作：结构与数值分离
+   —— 结构只在进入详情/展开时建一次；改份数时只更新数字，绝不重建 DOM。
+   以前每次输入都重建整个列表，输入框被移出文档 → 焦点丢失 → 输入法收起，
+   表现就是"输一个数字输入法就没了，2 和 0 得分开输"。 */
+function batchRow(i){
+  const fizzy = isFizzy(i.n);
+  return `<div class="batchrow" data-n="${esc(i.n)}" data-a="${esc(i.a)}">`
+       + `<span class="bn">${esc(i.n)}</span><span class="bo">${esc(i.a)}</span>`
+       + `<span class="bt${fizzy?" fizzy":""}">${fizzy?"出品时加":esc(scaleAmount(i.a,1))}</span></div>`;
+}
+function renderBatch(r){
+  const el = $("batchList");
+  if(!el || !r) return;
+  // 重绘（展开/收起、进入详情）时保留已经填过的预调份数
+  const prevPm = {};
+  el.querySelectorAll(".pmN").forEach(i=>{ prevPm[i.dataset.i] = i.value; });
+  const pms = (r.premixes && r.premixes.length)? r.premixes
+            : (r.premix && r.premix.length)? [{name:"Premix", ingredients:r.premix}] : null;
+  let html = `<div class="batchlabel">做酒用量</div>`;
+  html += `<div class="batchgroup" data-g="main">` + (r.ingredients||[]).map(batchRow).join("") + `<div class="batchtotal"></div></div>`;
+  if((r.ingredients||[]).some(i=>isFizzy(i.n))){
+    html += `<div class="batchtip">气泡水（苏打水 / 汤力水 / 干姜水）出品时最后加，不参与批量混合</div>`;
+  }
+  if(pms){
+    pms.forEach((pm,idx)=>{
+      const ings = pm.ingredients || [];
+      let tip = "";
+      if(pm.method){
+        const info = [];
+        if(PM_METHOD_LABEL[pm.method]) info.push(PM_METHOD_LABEL[pm.method]);
+        if(pm.method==="sousvide" && (pm.temp || pm.duration)){
+          info.push((pm.temp?pm.temp+"℃":"") + (pm.duration? " "+pm.duration : ""));
+        }
+        tip = `<span class="batchmethod">${esc(info.join(" · "))}</span>`;
+      }
+      const pv = (prevPm[idx] !== undefined && prevPm[idx] !== "") ? prevPm[idx] : "1";
+      html += `<div class="batchlabel">${esc(pm.name||"Premix")} 制作用量${tip}</div>`;
+      html += `<div class="batchbar small">做 <input class="pmN" data-i="${idx}" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" value="${esc(pv)}" autocomplete="off"> 份</div>`;
+      html += `<div class="batchgroup" data-g="pm${idx}">` + ings.map(batchRow).join("") + `<div class="batchtotal"></div></div>`;
+    });
+  }
+  el.innerHTML = html || '<div class="batchrow"><span class="bn">—</span></div>';
+  el.querySelectorAll(".pmN").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const clean = inp.value.replace(/[^0-9]/g,"");
+      if(clean !== inp.value) inp.value = clean;
+      updateBatch();          // 只更新数字，不重建 DOM（焦点/输入法保持）
+    });
+  });
+  updateBatch();
+}
+/* 只更新数字：读输入框当前值 → 重算每个分组里的倍数与合计 */
+function updateBatch(){
+  const el = $("batchList");
+  if(!el) return;
+  const paint = (group, k)=>{
+    let total = 0, cnt = 0;
+    group.querySelectorAll(".batchrow").forEach(rw=>{
+      const nm = rw.dataset.n || "", am = rw.dataset.a || "";
+      const bt = rw.querySelector(".bt");
+      if(!bt) return;
+      if(isFizzy(nm)){ bt.textContent = "出品时加"; return; }
+      bt.textContent = scaleAmount(am, k);
+      const m = am.trim().match(/^([\d.]+)\s*ml/i);
+      if(m){ total += parseFloat(m[1]); cnt++; }
+    });
+    const t = group.querySelector(".batchtotal");
+    if(t){
+      const txt = (cnt && total > 0)? ("合计 " + trim0(Math.round(total*k*100)/100) + "ml") : "";
+      t.textContent = txt;
+      t.style.display = txt? "" : "none";
+    }
+  };
+  const mainG = el.querySelector('.batchgroup[data-g="main"]');
+  if(mainG) paint(mainG, Math.max(1, parseInt($("batchN").value,10)||1));
+  el.querySelectorAll(".pmN").forEach(inp=>{
+    const g = el.querySelector('.batchgroup[data-g="pm' + inp.dataset.i + '"]');
+    if(g) paint(g, Math.max(1, parseInt(inp.value,10)||1));
+  });
+}
+
+/* ================= 编辑 ================= */
+let fTags = [];
+function renderFTags(){
+  const box = $("fTagList");
+  box.innerHTML = "";
+  fTags.forEach(t=>{
+    const s = document.createElement("span");
+    s.className = "tag";
+    s.innerHTML = esc(t) + '<span class="x" data-t="'+esc(t)+'">×</span>';
+    s.querySelector(".x").addEventListener("click", ()=>{
+      fTags = fTags.filter(x=>x!==t);
+      renderFTags();
+    });
+    box.appendChild(s);
+  });
+}
+function addFTag(){
+  const inp = $("fTagInput");
+  const raw = (inp.value||"").trim();
+  if(!raw) return;
+  const parts = raw.split(/[\s#，,、]+/).map(s=>s.trim()).filter(Boolean);
+  parts.forEach(p=>{ if(!fTags.includes(p)) fTags.push(p); });
+  inp.value = "";
+  renderFTags();
+}
+function openEditForm(id){
+  const r = id? byId(id) : null;
+  $("editTitle").textContent = r? "编辑配方" : "新增配方";
+  $("fZh").value = r? r.zh : "";
+  $("fEn").value = r? r.en : "";
+  $("fCat").value = r? (r.cat||"经典") : "经典";
+  $("fMethod").value = r? (r.method||"") : "";
+  $("fGlass").value = r? (r.glass||"") : "";
+  $("fGarnish").value = r? (r.garnish||"") : "";
+  $("fIce").value = r? (r.ice||"") : "";
+  $("fNote").value = r? (r.note||"") : "";
+  fTags = (r && r.tags)? r.tags.slice() : [];
+  $("fTagInput").value = "";
+  renderFTags();
+  const ings = r && r.ingredients && r.ingredients.length? r.ingredients : [{n:"",a:""}];
+  $("ingList").innerHTML = "";
+  ings.forEach(ing=>addIngRow(ing.n, ing.a));
+  // 预调 Premix 列表
+  const pms = (r && r.premixes && r.premixes.length)? r.premixes : [];
+  $("premixList").innerHTML = "";
+  if(pms.length===0) addPremixBlock();
+  else pms.forEach(pm=>addPremixBlock(pm));
+}
+/* ===== 预调 Premix 动态块（编辑表单） ===== */
+const PM_METHODS = [
+  ["","做法：无"],["sousvide","低温慢煮"],["milkwash","奶洗"],["fatwash","油洗"],
+  ["steep","浸泡"],["centrifuge","离心澄清"],["spin","旋蒸"],["freeze","冷冻澄清"]
+];
+function addPremixBlock(pm){
+  pm = pm || {};
+  const method = pm.method || "";
+  const blk = document.createElement("div");
+  blk.className = "pmblock";
+  blk.innerHTML = `
+    <div class="pmhead"><input class="pmname" placeholder="预调名称（如：Premix / 牛肝菌波本）" value="${esc(pm.name||"Premix")}">
+      <button type="button" class="rm" title="删除此预调">✕</button></div>
+    <div class="pmings"></div>
+    <button type="button" class="pmaddrow">＋ 添加材料</button>
+    <div class="pmmeta">
+      <select class="pmmethod">
+        ${PM_METHODS.map(([v,l])=>`<option value="${v}" ${v===method?"selected":""}>${l}</option>`).join("")}
+      </select>
+      <span class="svwrap" ${method==="sousvide"?"":"hidden"}>
+        温度 <input class="pmsvtemp" placeholder="60" value="${esc(pm.temp||"")}">℃
+        时长 <input class="pmsvtime" placeholder="4小时" value="${esc(pm.duration||"")}">
+      </span>
+    </div>
+    <textarea class="pmnote" placeholder="制作说明（如：混合后加入牛奶奶洗…）">${esc(pm.note||"")}</textarea>`;
+  const list = blk.querySelector(".pmings");
+  (pm.ingredients && pm.ingredients.length? pm.ingredients : [{n:"",a:""}]).forEach(ing=>addPmIngRow(list, ing.n, ing.a));
+  blk.querySelector(".rm").addEventListener("click", ()=>{
+    blk.remove();
+    if($("premixList").children.length===0) addPremixBlock();
+  });
+  blk.querySelector(".pmaddrow").addEventListener("click", ()=>addPmIngRow(list,"",""));
+  blk.querySelector(".pmmethod").addEventListener("change", e=>{
+    blk.querySelector(".svwrap").hidden = e.target.value !== "sousvide";
+  });
+  $("premixList").appendChild(blk);
+}
+function addPmIngRow(container, n, a){
+  const row = document.createElement("div");
+  row.className = "ingedit pmrow";
+  row.innerHTML = `<input class="in" placeholder="材料" value="${esc(n||"")}"><input class="ia" placeholder="用量" value="${esc(a||"")}"><button type="button" class="rm">✕</button>`;
+  row.querySelector(".rm").addEventListener("click", ()=>{
+    row.remove();
+    if(container.querySelectorAll(".pmrow").length===0) addPmIngRow(container,"","");
+  });
+  container.appendChild(row);
+}
+function addIngRow(n, a){
+  const row = document.createElement("div");
+  row.className = "ingedit";
+  row.innerHTML = `<input class="in" placeholder="材料" value="${esc(n||"")}"><input class="ia" placeholder="用量" value="${esc(a||"")}"><button type="button" class="rm">✕</button>`;
+  row.querySelector(".rm").addEventListener("click", ()=>{
+    row.remove();
+    if($("ingList").children.length===0) addIngRow("","");
+  });
+  $("ingList").appendChild(row);
+}
+function saveRecipe(){
+  const zh = $("fZh").value.trim();
+  if(!zh){ toast("请填写酒名"); return; }
+  const ings = [...$("ingList").querySelectorAll(".ingedit")].map(row=>({
+    n: row.querySelector(".in").value.trim(),
+    a: row.querySelector(".ia").value.trim()
+  })).filter(i=>i.n||i.a);
+  // 收集预调 Premix（多个，各自独立）
+  const premixes = [...$("premixList").querySelectorAll(".pmblock")].map(blk=>{
+    const ings2 = [...blk.querySelectorAll(".pmrow")].map(row=>({
+      n: row.querySelector(".in").value.trim(),
+      a: row.querySelector(".ia").value.trim()
+    })).filter(i=>i.n||i.a);
+    return {
+      name: blk.querySelector(".pmname").value.trim() || "Premix",
+      ingredients: ings2,
+      method: blk.querySelector(".pmmethod").value,
+      temp: blk.querySelector(".pmsvtemp").value.trim(),
+      duration: blk.querySelector(".pmsvtime").value.trim(),
+      note: blk.querySelector(".pmnote").value.trim()
+    };
+  }).filter(pm=>pm.ingredients.length>0 || pm.note || pm.method);
+  const rec = {
+    zh, en: $("fEn").value.trim(), cat: $("fCat").value, method: $("fMethod").value,
+    glass: $("fGlass").value.trim(), garnish: $("fGarnish").value.trim(), ice: $("fIce").value.trim(),
+    ingredients: ings, premixes, note: $("fNote").value.trim(), tags: fTags.filter(Boolean)
+  };
+  if(editingId){
+    if(isBuiltin(editingId)){
+      edits[editingId] = Object.assign({}, byId(editingId), rec);
+      store.save(LS.edits, edits);
+    }else{
+      const i = custom.findIndex(c=>c.id===editingId);
+      if(i>=0){ custom[i] = Object.assign({}, custom[i], rec); store.save(LS.custom, custom); }
+    }
+    toast("已保存");
+    location.replace("#/detail/" + editingId);
+  }else{
+    const id = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    rec.id = id; rec.py = ""; rec.pyf = zh; rec.enlow = (rec.en||"").toLowerCase();
+    custom.unshift(rec);
+    store.save(LS.custom, custom);
+    toast("已新增");
+    location.replace("#/detail/" + id);
+  }
+}
+function delRecipe(){
+  if(!cur) return;
+  confirmDlg(isBuiltin(cur)?"删除这款内置配方？":"删除这款配方？",
+    "删除后不可恢复。内置配方可在「设置 - 恢复所有内置配方」找回。",
+    ()=>{
+      if(isBuiltin(cur)){
+        if(!del.includes(cur)) del.push(cur);
+        store.save(LS.del, del);
+      }else{
+        custom = custom.filter(c=>c.id!==cur);
+        store.save(LS.custom, custom);
+      }
+      const i = favs.indexOf(cur); if(i>=0){ favs.splice(i,1); store.save(LS.favs, favs); }
+      toast("已删除");
+      location.replace("#/");
+    });
+}
+
+/* ================= 配方码（老板→员工同步） ================= */
+const CODE_PREFIX = "CT1-";
+function bytesToB64(bytes){
+  let bin = ""; const chunk = 0x8000;
+  for(let i=0;i<bytes.length;i+=chunk) bin += String.fromCharCode.apply(null, bytes.subarray(i,i+chunk));
+  return btoa(bin);
+}
+function b64ToBytes(b64){
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+async function compressToCode(str){
+  if(typeof CompressionStream !== "undefined"){
+    const stream = new Blob([str]).stream().pipeThrough(new CompressionStream("deflate"));
+    const buf = await new Response(stream).arrayBuffer();
+    return bytesToB64(new Uint8Array(buf));
+  }
+  return btoa(unescape(encodeURIComponent(str)));
+}
+async function decompressFromCode(b64){
+  if(typeof DecompressionStream !== "undefined"){
+    const stream = new Blob([b64ToBytes(b64)]).stream().pipeThrough(new DecompressionStream("deflate"));
+    return await new Response(stream).text();
+  }
+  return decodeURIComponent(escape(atob(b64)));
+}
+/* ============ 配方码内容精简 ============
+   1) 只带对方真正需要的字段：id / py / pyf / enlow / tags 都是本机派生的索引字段，
+      对方载入后会自己重算，带上只是白白把码撑长；空字段也省掉
+      （合并侧「留空一律不覆盖库里原值」，所以省掉空值不会丢东西）。
+   2) 与内置库已经完全一致的改动不再重复携带 —— 那说明它早就同步过了。 */
+const PAYLOAD_FIELDS = ["zh","en","cat","method","glass","garnish","ice"];
+function slimIngs(list){
+  return (list||[]).filter(i=>i && (i.n || i.a)).map(i=>({n:i.n||"", a:i.a||""}));
+}
+function slimPremix(p){
+  const o = {name: p.name || "Premix", ingredients: slimIngs(p.ingredients)};
+  ["method","temp","duration","note"].forEach(k=>{ if(p[k]) o[k] = p[k]; });
+  return o;
+}
+function slimRecipe(r, keepId){
+  const o = {};
+  /* keepId：自配配方分享时必须带上 id —— 对方的列表/详情/收藏都靠它定位，
+     剔掉就会出现"列表里有、点开却回退首页"。 */
+  if(keepId && r.id) o.id = r.id;
+  PAYLOAD_FIELDS.forEach(k=>{ if(r[k]) o[k] = r[k]; });
+  o.cat = r.cat || "原创";
+  o.ingredients = slimIngs(r.ingredients);
+  if((r.premixes||[]).length) o.premixes = r.premixes.map(slimPremix);
+  if(r.note) o.note = r.note;
+  return o;
+}
+/* 指纹：把一条配方归一化成可比较的字符串（字段顺序固定，避免误判） */
+function fingerprint(r){
+  return JSON.stringify([
+    r.zh||"", r.en||"", r.cat||"", r.method||"", r.glass||"", r.garnish||"", r.ice||"",
+    slimIngs(r.ingredients), (r.note||"").trim(), (r.premixes||[]).map(slimPremix)
+  ]);
+}
+/* 这条改动跟内置库是不是已经一模一样了（= 早前同步过，没必要再发）。
+   注意这里是"宽松比较"：手机上的记录是整张表单的快照，没填的字段是空串，
+   空串的意思是"这条没填过"，不等于"要把库里已有的值清空"。
+   早先用的严格比较会把空串当成覆盖值 —— 于是像「花椒马天尼」这种
+   当年在手机上新增、后来已并入内置库的酒（做法/杯型/装饰/冰块在手机记录里是空的），
+   会被永远判定为"不一致"，每次生成配方码都把它重新带上。
+   现在只比较"确实填了值"的字段；空字段一律沿用内置库的值再比。 */
+function sameAsBuiltin(rec, builtinRec){
+  if(!builtinRec) return false;
+  const filled = {};
+  ["zh","en","cat","method","glass","garnish","ice","note"].forEach(k=>{
+    const v = rec ? rec[k] : "";
+    if(v !== undefined && v !== null && String(v).trim() !== "") filled[k] = v;
+  });
+  if(((rec&&rec.ingredients)||[]).length) filled.ingredients = rec.ingredients;
+  if(((rec&&rec.premixes)||[]).length) filled.premixes = rec.premixes;
+  return fingerprint(Object.assign({}, builtinRec, filled)) === fingerprint(builtinRec);
+}
+function builtinByName(){
+  const m = {};
+  DEFAULT_RECIPES.forEach(r=>{ if(r.zh && !m[r.zh]) m[r.zh] = r; });
+  return m;
+}
+function builtinById(){
+  const m = {};
+  DEFAULT_RECIPES.forEach(r=>{ m[r.id] = r; });
+  return m;
+}
+/* 配方码内容：带上全部"还没进内置库"的新增 / 修改 / 删除。
+   跟内置库一致的部分自动省略 —— 对方库里本来就有，重复发只是把码撑长。 */
+function buildPayload(){
+  const byName = builtinByName(), byId = builtinById();
+  const outCustom = custom.filter(c=>!sameAsBuiltin(c, byName[c.zh]));
+  const outEdits = {};
+  Object.keys(edits).forEach(id=>{
+    if(!sameAsBuiltin(edits[id], byId[id])) outEdits[id] = edits[id];
+  });
+  return {v:2, t:"sync", at: Date.now(), custom: outCustom, edits: outEdits, del: del,
+          local: {custom: custom.length, edits: Object.keys(edits).length}};
+}
+async function generateShareCode(){
+  const data = buildPayload();
+  const hasNew = data.custom.length || Object.keys(data.edits).length || data.del.length;
+  const payload = {v:2, t:"sync", at: data.at, custom: data.custom.map(c=>slimRecipe(c, true)),
+                   edits: {}, del: data.del.slice()};
+  Object.keys(data.edits).forEach(id=>{ payload.edits[id] = slimRecipe(data.edits[id]); });
+  const b64 = await compressToCode(JSON.stringify(payload));
+  const code = CODE_PREFIX + b64;
+  const skipped = (data.local.custom + data.local.edits) - (data.custom.length + Object.keys(data.edits).length);
+  promptDlg("你的配方码", code,
+    hasNew ? "把这段代码发给别人（点按钮复制，或长按文字全选复制）。码里含你全部尚未并入内置库的新增和修改。" +
+             (skipped>0 ? "（另有 " + skipped + " 条改动已经在内置库里了，已自动省略）" : "")
+           : "你手机上的改动都已经在内置库里了（已同步），没有需要发送的内容。",
+    "复制配方码", ()=>{ copyText(code); });
+}
+/* 单独分享某一款配方：内置配方→edits 单条；自己新增的→custom 单条 */
+async function shareOneRecipe(id){
+  const r = byId(id);
+  if(!r) return;
+  const data = {v:2, t:"sync", at: Date.now(), custom:[], edits:{}, del:[]};
+  const name = r.zh || r.en || id;
+  if(isBuiltin(id)){
+    data.edits[id] = slimRecipe(r);   // 对方载入后按 id 覆盖该内置配方
+  }else{
+    data.custom = [slimRecipe(r, true)];    // 对方载入后新增/覆盖这款自定义酒（带 id）
+  }
+  const b64 = await compressToCode(JSON.stringify(data));
+  const code = CODE_PREFIX + b64;
+  promptDlg("分享「" + name + "」", code,
+    "把这段代码发给对方，对方在「设置 - 载入配方码」粘贴即可获得这款配方（不影响其他配方）。",
+    "复制配方码", ()=>{ copyText(code); });
+}
+async function loadShareCodeFromDlg(){
+  promptDlg("载入配方码", "",
+    "把老板发来的配方码粘贴到下面，确认后即可更新为本店最新配方。",
+    "确认载入", async (input)=>{
+      try{ await applyShareCode(input); }
+      catch(e){ toast("代码格式不对，请检查是否完整复制"); }
+    }, true);
+}
+/* 合并外来配方：码里没带的字段/空串表示「没改」，不能把本机已有值抹掉 */
+function mergeFilled(base, patch){
+  const out = Object.assign({}, base || {});
+  Object.keys(patch || {}).forEach(k=>{
+    const v = patch[k];
+    if(v === undefined || v === null) return;
+    if(typeof v === "string" && v.trim() === "") return;
+    out[k] = v;
+  });
+  return out;
+}
+async function applyShareCode(code){
+  code = (code||"").trim();
+  if(!code) throw new Error("empty");
+  let json = null;
+  const body = code.startsWith(CODE_PREFIX)? code.slice(CODE_PREFIX.length) : code;
+  try{
+    json = await decompressFromCode(body);
+  }catch(e1){
+    try{ json = decodeURIComponent(escape(atob(body))); }
+    catch(e2){ json = null; }
+  }
+  if(!json){
+    try{ json = code; }catch(e){ throw new Error("bad"); }
+  }
+  const d = JSON.parse(json);
+  if(!d || typeof d !== "object") throw new Error("bad");
+  const newCustom = Array.isArray(d.custom)? d.custom : [];
+  const newEdits  = d.edits && typeof d.edits==="object"? d.edits : {};
+  const newDel    = Array.isArray(d.del)? d.del : [];
+  // 合并：按 id 覆盖；旧版码里没带 id 的按酒名覆盖；都对不上才追加。
+  // 追加时一定补一个本地 id，否则这条配方在列表里看得见、点开却回退（#/detail/undefined）。
+  for(const r of newCustom){
+    if(!r || typeof r !== "object") continue;
+    const rid = validId(r.id) ? r.id : "";           // 外来 id 先过白名单，防止注入 DOM/hash
+    let i = rid ? custom.findIndex(c=>c.id===rid) : -1;
+    if(i<0 && r.zh) i = custom.findIndex(c=>(c.zh||"")===(r.zh||""));
+    if(i>=0){
+      const id = custom[i].id || (rid && !isBuiltin(rid) ? rid : newLocalId());
+      custom[i] = mergeFilled(custom[i], r);
+      custom[i].id = id;
+    }else{
+      const id = (rid && !isBuiltin(rid)) ? rid : newLocalId();
+      const rec = mergeFilled({}, r);
+      rec.id = id;
+      custom.push(rec);
+    }
+  }
+  Object.keys(newEdits).forEach(id=>{
+    if(!validId(id)) return;
+    edits[id] = mergeFilled(edits[id] || {}, newEdits[id]);
+  });
+  del = Array.from(new Set([...del, ...newDel.filter(validId)]));
+  store.save(LS.custom, custom); store.save(LS.edits, edits); store.save(LS.del, del);
+  repairCustomIds();
+  migrateEditIds();
+  const count = newCustom.length + Object.keys(newEdits).length + newDel.length;
+  toast("已更新 " + count + " 处配方修改");
+  renderList();
+}
+
+/* ================= 文件备份 ================= */
+function exportData(){
+  const data = {v:2, exportedAt:new Date().toISOString(), custom, edits, del, favs};
+  const blob = new Blob([JSON.stringify(data,null,1)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "配方备份_" + new Date().toISOString().slice(0,10) + ".json";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();}, 1000);
+  toast("备份已导出");
+}
+function importData(file){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const d = JSON.parse(reader.result);
+      if(d && typeof d==="object"){
+        custom = Array.isArray(d.custom)? d.custom : [];
+        edits  = d.edits && typeof d.edits==="object"? d.edits : {};
+        del    = Array.isArray(d.del)? d.del : [];
+        favs   = Array.isArray(d.favs)? d.favs : [];
+        store.save(LS.custom,custom); store.save(LS.edits,edits); store.save(LS.del,del); store.save(LS.favs,favs);
+        repairCustomIds(); migrateEditIds();     // 旧备份里可能有坏 id / 位移的 edits
+        toast("恢复成功"); renderList();
+      }else throw 0;
+    }catch(e){ toast("文件格式不对，无法恢复"); }
+  };
+  reader.readAsText(file);
+}
+
+/* ================= 弹窗 ================= */
+function confirmDlg(title, msg, onOk){
+  const mask = document.createElement("div");
+  mask.className = "mask";
+  mask.innerHTML = `<div class="dlg"><h4>${esc(title)}</h4><p>${esc(msg)}</p>
+    <div class="btns"><button class="cancel">取消</button><button class="ok">确认</button></div></div>`;
+  mask.addEventListener("click", e=>{ if(e.target===mask) mask.remove(); });
+  mask.querySelector(".cancel").addEventListener("click", ()=>mask.remove());
+  mask.querySelector(".ok").addEventListener("click", ()=>{ mask.remove(); onOk(); });
+  document.body.appendChild(mask);
+}
+function promptDlg(title, value, msg, okLabel, onOk, editable){
+  const mask = document.createElement("div");
+  mask.className = "mask";
+  mask.innerHTML = `<div class="dlg"><h4>${esc(title)}</h4>
+    ${msg?`<p>${esc(msg)}</p>`:""}
+    <textarea ${editable?"":"readonly"}>${esc(value)}</textarea>
+    <div class="btns"><button class="cancel">关闭</button><button class="ok primary">${esc(okLabel||"确定")}</button></div></div>`;
+  mask.addEventListener("click", e=>{ if(e.target===mask) mask.remove(); });
+  mask.querySelector(".cancel").addEventListener("click", ()=>mask.remove());
+  mask.querySelector(".ok").addEventListener("click", async ()=>{
+    const v = mask.querySelector("textarea").value;
+    mask.remove();
+    await onOk(v);
+  });
+  document.body.appendChild(mask);
+  const ta = mask.querySelector("textarea");
+  ta.focus();
+  if(!editable){ ta.select(); ta.setSelectionRange(0, ta.value.length); }
+}
+function copyText(txt){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(()=>toast("已复制，去发给我吧")).catch(()=>fallbackCopy(txt));
+  } else fallbackCopy(txt);
+}
+function fallbackCopy(txt){
+  try{
+    const ta = document.createElement("textarea");
+    ta.value = txt;
+    ta.style.position = "fixed"; ta.style.opacity = "0"; ta.style.pointerEvents = "none";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    if(ok) toast("已复制，去发给我吧");
+    else toast("自动复制失败，弹窗文字已全选，直接复制即可");
+  }catch(e){ toast("自动复制失败，弹窗文字已全选，直接复制即可"); }
+}
+
+/* ================= 杂项 ================= */
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+let toastTimer;
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"), 2000);
+}
+
+/* ================= 事件绑定 ================= */
+$("searchInput").addEventListener("input", e=>{ query = e.target.value; renderList(); syncSearchHash(); });
+$("tagSearchInput").addEventListener("input", e=>{ tagQuery = e.target.value; renderList(); });
+$("chips").addEventListener("click", e=>{
+  const b = e.target.closest(".chip"); if(!b) return;
+  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+  b.classList.add("active"); filter = b.dataset.f; renderList();
+});
+$("btnAdd").addEventListener("click", ()=>{ location.hash = "#/new"; });
+$("btnSettings").addEventListener("click", ()=>{ location.hash = "#/settings"; });
+$("btnBackDetail").addEventListener("click", goBack);
+$("btnBackEdit").addEventListener("click", goBack);
+$("btnBackSet").addEventListener("click", goBack);
+$("btnFav").addEventListener("click", ()=>{ toggleFav(cur); route(); });
+$("btnShare").addEventListener("click", ()=>{ if(cur) shareOneRecipe(cur); });
+$("btnEdit").addEventListener("click", ()=>{ location.hash = "#/edit/" + cur; });
+$("btnDel").addEventListener("click", delRecipe);
+$("btnSave").addEventListener("click", e=>{ e.preventDefault(); saveRecipe(); });
+$("btnAddIng").addEventListener("click", ()=>addIngRow("",""));
+$("btnAddPremix").addEventListener("click", ()=>addPremixBlock());
+$("btnAddTag").addEventListener("click", addFTag);
+$("fTagInput").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); addFTag(); } });
+$("editForm").addEventListener("submit", e=>e.preventDefault());
+$("btnShareCode").addEventListener("click", generateShareCode);
+$("btnLoadCode").addEventListener("click", loadShareCodeFromDlg);
+$("btnExport").addEventListener("click", exportData);
+$("btnImport").addEventListener("click", ()=>$("importFile").click());
+$("importFile").addEventListener("change", e=>{ if(e.target.files[0]) importData(e.target.files[0]); e.target.value=""; });
+$("btnRestoreAll").addEventListener("click", ()=>{
+  // 「恢复内置配方」= 回到最新默认版。凡是"自己新增、但内容已经和内置库一模一样"的酒，
+  // 说明它早就并进库里了 —— 本地留着只是让每次生成的配方码又长又重复，顺手清掉。
+  const byName = builtinByName();
+  const gone = [], kept = [];
+  custom.forEach(c=>{
+    const b = byName[c.zh];
+    if(b && sameAsBuiltin(c, b)) gone.push({rec:c, builtin:b});
+    else if(b) kept.push(c.zh);
+  });
+  const goneIds = gone.map(g=>g.rec.id);
+  const extra = gone.length ? "其中 " + gone.length + " 款你自增的酒已经并入内置库（" +
+                gone.map(g=>g.rec.zh).join("、") + "），本地副本会一并清理。" : "";
+  confirmDlg("恢复所有内置配方？",
+    "将撤销对内置配方的全部修改和删除，回到最新默认配方版本。" + extra +
+    (kept.length ? "另有 " + kept.length + " 款自增酒和库里的内容不一致（" + kept.join("、") + "），会原样保留。" : ""),
+    ()=>{
+      edits={}; del=[];
+      store.save(LS.edits, edits); store.save(LS.del, del);
+      if(gone.length){
+        const map = {}; gone.forEach(g=>{ map[g.rec.id] = g.builtin.id; });
+        custom = custom.filter(c=>!map[c.id]);
+        store.save(LS.custom, custom);
+        // 收藏里如果指向被清理的自增副本，改指到内置那一款，别让收藏失效
+        let changed = false;
+        favs = favs.map(id=>{ if(map[id]){ changed = true; return map[id]; } return id; });
+        if(changed) store.save(LS.favs, favs);
+      }
+      toast(gone.length ? "已恢复，顺带清理 " + gone.length + " 款已并入内置的副本" : "已恢复");
+      renderList();
+    });
+});
+$("btnResetAll").addEventListener("click", ()=>{
+  confirmDlg("清空所有数据？","包括你新增、修改的配方和收藏，全部删除且无法恢复！",
+    ()=>{
+      custom=[]; edits={}; del=[]; favs=[];
+      store.clear();
+      toast("已清空"); renderList(); location.hash = "#/";
+    });
+});
+
+/* ================= 启动 ================= */
+window.addEventListener("hashchange", ()=>{
+  // 从搜索状态（#/?q=…）退回干净主页时，自动清空搜索框
+  if(parseHash().view==="home" && (query || $("searchInput").value || tagQuery || $("tagSearchInput").value) && location.hash.indexOf("#/?q=")!==0){
+    query=""; tagQuery=""; $("searchInput").value=""; $("tagSearchInput").value=""; renderList();
+  }
+  route();
+});
+/* ===== 手机输入法遮挡：给表单底部留空间 + 聚焦后自动滚进可视区 ===== */
+let kbFocused = false;
+document.addEventListener("focusin", e=>{
+  const t = e.target;
+  if(!t || !t.matches || !t.matches("input, textarea, select")) return;
+  if(t.tagName === "SELECT") return;
+  document.body.classList.add("kb");
+  kbFocused = true;
+  // 等键盘弹起动画结束后再把当前输入项滚到视口中间，否则备注栏会被键盘盖住看不见
+  setTimeout(()=>{ if(kbFocused) try{ t.scrollIntoView({block:"center", behavior:"smooth"}); }catch(err){} }, 300);
+});
+document.addEventListener("focusout", ()=>{
+  kbFocused = false;
+  setTimeout(()=>{
+    const a = document.activeElement;
+    if(!a || !a.matches || !a.matches("input, textarea")) document.body.classList.remove("kb");
+  }, 150);
+});
+// 视觉视口变化 = 键盘正在弹起/收起：这是最可靠的时机信号，比固定延时准
+if(window.visualViewport){
+  window.visualViewport.addEventListener("resize", ()=>{
+    const a = document.activeElement;
+    if(a && a.matches && a.matches("input, textarea")){
+      setTimeout(()=>{ try{ a.scrollIntoView({block:"center", behavior:"smooth"}); }catch(err){} }, 80);
+    }
+  });
+}
+/* 打开带 #/?q= 的链接时恢复搜索词（分享搜索结果用） */
+function initQueryFromHash(){
+  const m = (location.hash||"").match(/^#\/\?q=([^&]*)/);
+  if(!m) return;
+  try{ query = decodeURIComponent(m[1]); }catch(e){ query = m[1]; }
+  $("searchInput").value = query;
+}
+initQueryFromHash();
+route();
+setupNativeBack();
+/* ===== 安装到桌面（PWA） ===== */
+let deferredInstall = null;
+function isStandalone(){
+  return window.matchMedia && window.matchMedia("(display-mode: standalone)").matches
+      || window.navigator.standalone === true;
+}
+function setupInstall(){
+  const card = $("installCard");
+  if(!card) return;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+  function showIfCanInstall(){
+    if(!isStandalone()){
+      if(deferredInstall){           // Android Chrome 可原生安装
+        $("installTip").textContent = "点下面按钮，把调酒手册装到手机桌面，像 App 一样随时打开（还能离线用）。";
+        $("btnInstallApp").textContent = "安装到桌面";
+        card.hidden = false;
+      } else if(isIOS){              // iOS Safari：引导添加到主屏幕
+        $("installTip").textContent = "请用 Safari 打开本页：点底部「分享」按钮 → 选择「添加到主屏幕」，就能像 App 一样从桌面打开（还能离线用）。";
+        $("btnInstallApp").textContent = "查看 iPhone 安装方法";
+        card.hidden = false;
+      } else if(isAndroid){          // 其他 Android 浏览器（非 Chrome）
+        $("installTip").textContent = "在浏览器菜单里选「添加到主屏幕」或「安装应用」，即可像 App 一样从桌面打开。";
+        $("btnInstallApp").textContent = "查看安装方法";
+        card.hidden = false;
+      }
+    }
+  }
+  window.addEventListener("beforeinstallprompt", e=>{
+    e.preventDefault();
+    deferredInstall = e;
+    showIfCanInstall();
+  });
+  window.addEventListener("appinstalled", ()=>{ card.hidden = true; });
+  $("btnInstallApp").addEventListener("click", ()=>{
+    if(deferredInstall){
+      deferredInstall.prompt();
+      deferredInstall.userChoice.then(()=>{ deferredInstall = null; });
+    } else {
+      // iOS / 非 Chrome：给图文提示（指引放文本框，可滚动）
+      promptDlg("安装到桌面",
+        isIOS? "iPhone / iPad 方法：\n\n1. 点底部「分享」方形按钮\n2. 向下滑，选「添加到主屏幕」\n3. 点右上角「添加」\n\n完成后桌面会多一个「调酒手册」图标，点它就能像 App 一样打开，还能离线用。" :
+               "安卓方法：\n\n1. 点浏览器右上角「⋮」菜单\n2. 选「添加到主屏幕」或「安装应用」\n3. 按提示确认安装\n\n完成后桌面会多一个「调酒手册」图标，点它就能像 App 一样打开，还能离线用。",
+        "按上面的步骤操作即可", "知道了", ()=>{}, false);
+    }
+  });
+  if(!isStandalone()) setTimeout(showIfCanInstall, 600);
+}
+setupInstall();
+/* ===== 右侧滚动进度条（仅指示，可点击跳转） ===== */
+function updateScrollbar(){
+  const sb = $("scrollbar"), th = $("scrollbarThumb");
+  if(!sb || !th) return;
+  const doc = document.documentElement;
+  const max = doc.scrollHeight - window.innerHeight;
+  const ratio = max > 0 ? window.scrollY / max : 0;
+  const viewH = window.innerHeight - 22; // 条的可视区：top 14 + bottom 8
+  const h = Math.max(24, viewH * Math.min(1, viewH / max));
+  th.style.height = Math.round(h) + "px";
+  th.style.top = Math.round(ratio * (viewH - h)) + "px";
+}
+window.addEventListener("scroll", updateScrollbar, {passive:true});
+window.addEventListener("resize", updateScrollbar);
+$("scrollbar").addEventListener("click", e=>{
+  const sb = $("scrollbar"), rect = sb.getBoundingClientRect();
+  const doc = document.documentElement;
+  const max = doc.scrollHeight - window.innerHeight;
+  window.scrollTo(0, ((e.clientY - rect.top) / rect.height) * max);
+});
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    // 带构建版本号注册：托管平台的 CDN 会把 /sw.js 缓存一小时以上（实测 Age 4000s+），
+    // 不加版本号的话新版 sw 根本下不来，页面就永远停在旧版本。
+    // 2026-11-13 起托管平台要求链接带 sharecode 才能访问，SW 自己取文件也得带上，
+    // 所以把当前链接里的 sharecode 一并交给它（sw.js 从自己的 location 里读）。
+    const sc = new URLSearchParams(location.search).get("sharecode");
+    navigator.serviceWorker.register("sw.js?v=dusk-20261113012727" + (sc ? "&sharecode=" + encodeURIComponent(sc) : "")).catch(()=>{});
+  });
+}
+updateScrollbar();
+</script>
